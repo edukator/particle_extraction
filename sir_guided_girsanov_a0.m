@@ -1,4 +1,4 @@
-function [Xf, Xp, resampling_counter] = sir_guided_girsanov_a0(F,sx,sz,h,NT,n_obs,z,H,X0,ness_thr)
+   function [Xf, Xp, resampling_counter] = sir_guided_girsanov_a0(F,sx,sz,h,NT,n_obs,z,H,X0,ness_thr,save_obs_indices,snapshot_cfg)
 % Guided particle filter with baseline OU auxiliary AND a_n = 0.
 %
 % True model (particles):  dX = b(X) dt + sx dW
@@ -17,6 +17,13 @@ function [Xf, Xp, resampling_counter] = sir_guided_girsanov_a0(F,sx,sz,h,NT,n_ob
 %   r(x) = b(x) - (-x) = b(x) + x.
 
 [Dx, N] = size(X0);
+if nargin < 11
+    save_obs_indices = [];
+end
+if nargin < 12
+    snapshot_cfg = struct();
+end
+save_obs_indices = unique(save_obs_indices(:))';
 nt = NT / n_obs;  % require n_obs | NT
 
 % Initialisation
@@ -33,6 +40,7 @@ w    = ones(1, N)/N;       % weights
 sxsqrth = sx*sqrt(h);
 
 resampling_counter = 0;
+save_snapshot_on_the_fly(snapshot_cfg, save_obs_indices, 0, X0, w);
 
 % -- Loop over observation windows
 for obs_idx = 1:nt
@@ -94,6 +102,7 @@ for obs_idx = 1:nt
 
     % filtered estimate at obs time
     Xf(:, obs_idx+1) = Xnew * w.';
+    save_snapshot_on_the_fly(snapshot_cfg, save_obs_indices, obs_idx, Xnew, w);
 
     % ============================================================
     % (E) Resampling conditional on ESS
