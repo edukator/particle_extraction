@@ -1,7 +1,6 @@
-function main_cli(sx, sz, NR, is_N_fixed, fig_dir)
-% main(sx, sz, NR, is_N_fixed, fig_dir)
+function main_cli(sx, sz, is_N_fixed, fig_dir)
+% main(sx, sz, is_N_fixed, fig_dir)
 %   sx, sz      : signal and observation noise std
-%   NR          : number of runs per Dx
 %   is_N_fixed  : logical, if true N is fixed, else N = DxArray
 %   fig_dir     : directory where the .fig file will be saved
 
@@ -54,17 +53,19 @@ function main_cli(sx, sz, NR, is_N_fixed, fig_dir)
 
     %DxArray = [10,50,100,250,500,750,1000,1500,2000];
      DxArray=[10,50,100,150];
+    save_obs_indices = [1, 7, 10, 13];
+    snapshot_root_dir = fullfile(fig_dir, 'snapshots');
+    if ~exist(snapshot_root_dir, 'dir')
+        mkdir(snapshot_root_dir);
+    end
  
 
-    % NR is now an input argument
-    % NR = ...;
-
     filters = {
-        SIRFilter(dummy_params,     DxArray, NR), ...
-        ENKFFilter(dummy_params,    DxArray, NR), ...
-        ENKF_Barrier_Filter(dummy_params, DxArray, NR),	...
-        APFFilter(dummy_params,     DxArray, NR), ...
-        BarrierFilter(dummy_params, DxArray, NR)
+        SIRFilter(dummy_params,     DxArray), ...
+        ENKFFilter(dummy_params,    DxArray), ...
+        ENKF_Barrier_Filter(dummy_params, DxArray),	...
+        APFFilter(dummy_params,     DxArray), ...
+        BarrierFilter(dummy_params, DxArray)
     };
 
     % NArray: fixed or equal to DxArray, depending on input flag
@@ -74,7 +75,7 @@ function main_cli(sx, sz, NR, is_N_fixed, fig_dir)
         NArray = DxArray;
     end
 
-    %% Main loop over dimensions and runs
+    %% Main loop over dimensions
     for iDX = 1:numel(DxArray)
         Dx = DxArray(iDX);
         N  = NArray(iDX);
@@ -86,9 +87,8 @@ function main_cli(sx, sz, NR, is_N_fixed, fig_dir)
 
        
 
-        for nr = 1:NR
-             fixed_observed_components = randsample(Dx, Dz);
-             fixed_observed_components = sort(fixed_observed_components);
+        fixed_observed_components = randsample(Dx, Dz);
+        fixed_observed_components = sort(fixed_observed_components);
             ok = 0;
             while ~ok
                 n_steps = ceil(5/he);           % up to half of final time ?
@@ -122,6 +122,7 @@ function main_cli(sx, sz, NR, is_N_fixed, fig_dir)
 
             params = struct( ...
                 'F',                        F, ...
+                'Dx',                       Dx, ...
                 'sx',                       sx, ...
                 'sz',                       sz, ...
                 'he',                       he, ...
@@ -138,21 +139,24 @@ function main_cli(sx, sz, NR, is_N_fixed, fig_dir)
                 'Pd_f',                     Pd_f, ...
                 'Pd_p',                     Pd_p, ...
                 'parhyper',                 parhyper, ...
-                'barrier_params',           barrier_params ...
+                'barrier_params',           barrier_params, ...
+                'save_obs_indices',         save_obs_indices, ...
+                'snapshot_dir',             fullfile(snapshot_root_dir, sprintf('Dx_%d', Dx)) ...
             );
 
             % Assign updated params to filters and run them
             for k = 1:numel(filters)
                 filters{k}.params = params;
-                filters{k}.run(iDX, nr);
+                filters{k}.run(iDX);
             end
-        end % nr loop
     end % Dx loop
 
     % Display metrics
     for k = 1:numel(filters)
         disp(filters{k}.metric);
     end
+
+    fprintf('Particle/weight snapshots are saved on the fly to: %s\n', snapshot_root_dir);
 
     %% Plot and save as .fig (invisible)
     f = figure('Visible', 'on');
@@ -161,8 +165,8 @@ function main_cli(sx, sz, NR, is_N_fixed, fig_dir)
     for k = 1:numel(filters)
         metric = filters{k}.metric;
         dx_values = metric.DxArray(:)';
-        mean_mse = mean(metric.MSEf, 2, 'omitnan')';
-        std_mse  = std(metric.MSEf, 0, 2, 'omitnan')';
+        mean_mse = metric.MSEf(:)';
+        std_mse  = zeros(size(mean_mse));
 
         line_handle = plot(dx_values, mean_mse, '-o', 'DisplayName', metric.name);
 

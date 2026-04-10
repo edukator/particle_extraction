@@ -1,7 +1,14 @@
-function [xf, xp] = enkfH_e(F,sx,sz,h,NT,n_obs,z,H,X0,Dobs,obs_components)
+function [xf, xp] = enkfH_e(F,sx,sz,h,NT,n_obs,z,H,X0,Dobs,obs_components,save_obs_indices,snapshot_cfg)
 
 % recovers the no. of particles (N), the no. of slow oscillators (nosc)
 [Dx, N] = size(X0);
+if nargin < 12
+    save_obs_indices = [];
+end
+if nargin < 13
+    snapshot_cfg = struct();
+end
+save_obs_indices = unique(save_obs_indices(:))';
 
 % initialisation
 Xold = X0;
@@ -18,6 +25,8 @@ xf(:,1) = mean(X0,2);
 
 s2z = sz^2;
 obs_counter=1; % to keep track of observation stored at only obs time, 
+uniform_weights = ones([1 N])/N;
+save_snapshot_on_the_fly(snapshot_cfg, save_obs_indices, 0, X0, uniform_weights);
 
 
 for n = 2:(NT+1)  %   NOT  NT, IT IS   NT+1;
@@ -57,6 +66,7 @@ for n = 2:(NT+1)  %   NOT  NT, IT IS   NT+1;
               
            Zn = z(:,obs_counter) + sqrt(s2z)*randn([Dobs N]);
            Xf = Xp + Kg*(Zn-Zp);
+           save_snapshot_on_the_fly(snapshot_cfg, save_obs_indices, obs_counter, Xf, uniform_weights);
 
            % updated mean
            xf(:,obs_counter+1) = mean(Xf,2);

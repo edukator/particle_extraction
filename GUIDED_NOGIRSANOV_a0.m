@@ -1,7 +1,7 @@
 classdef GUIDED_NOGIRSANOV_a0 < AbstractFilter
     methods
-        function obj = GUIDED_NOGIRSANOV_a0(params, DxArray, NR)
-            obj@AbstractFilter(params, 'Guided_NoGirsanov_a0', DxArray, NR);
+        function obj = GUIDED_NOGIRSANOV_a0(params, DxArray)
+            obj@AbstractFilter(params, 'Guided_NoGirsanov_a0', DxArray);
         end
     end
     methods (Access = protected)

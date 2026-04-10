@@ -1,6 +1,6 @@
 
 
-function [Xf, Xp,resampling_counter] = sir(F,sx,sz,h,NT,n_obs,z,H,X0,ness_thr)
+function [Xf, Xp] = sir(F,sx,sz,h,NT,n_obs,z,H,X0,ness_thr,save_obs_indices,snapshot_cfg)
 % function [Xf, Xp] = sir(F,sx,sz,h,NT,n_obs,z,X0,ness_thr)
 %
 % F : Lorenz 96 forcing parameter
@@ -22,6 +22,14 @@ function [Xf, Xp,resampling_counter] = sir(F,sx,sz,h,NT,n_obs,z,H,X0,ness_thr)
 
 % recovers the no. of particles (N), the no. of slow oscillators (nosc)
 [Dx, N] = size(X0);
+if nargin < 11
+    save_obs_indices = [];
+end
+if nargin < 12
+    snapshot_cfg = struct();
+end
+save_obs_indices = unique(save_obs_indices(:))';
+
 nt=NT/n_obs; % choose NT and obs such that obs| NT
 % initialisation
 Xf = zeros([Dx nt+1]);      % filtered estimates, at obs
@@ -35,11 +43,12 @@ w = ones([1 N])/N;        % weights
 s2z = sz^2;
 % time steps
 sxsqrth=sx*sqrt(h);
+
+save_snapshot_on_the_fly(snapshot_cfg, save_obs_indices, 0, X0, w);
  
 %
 % --Time loop
 %
-resampling_counter=0;
 %finer_idx_counter=1;
 for obs_idx=1:nt
 
@@ -75,6 +84,7 @@ for obs_idx=1:nt
        
        % estimation
        Xf(:,obs_idx+1) = Xnew*w';  %%% is it the correct place ?  (obs_idx+1)
+       save_snapshot_on_the_fly(snapshot_cfg, save_obs_indices, obs_idx, Xnew, w);
        
        % fprintf("finer_idx  % d, Xp stored at   %d \n", finer_idx_counter,(obs_idx-1)*n_obs+inner_idx+1);     
        % Resampling
@@ -85,7 +95,6 @@ for obs_idx=1:nt
            
             w = ones([1 N])/N;
             lw = zeros([1 N]);
-            resampling_counter=resampling_counter+1;
        end %if
        
    %fprintf("--------------\n");
