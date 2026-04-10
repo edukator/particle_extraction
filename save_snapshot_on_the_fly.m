@@ -6,7 +6,7 @@ function save_snapshot_on_the_fly(snapshot_cfg, save_obs_indices, obs_idx, parti
 %   - filter_name: string used in output filename
 %   - Dx: state dimension (metadata)
 
-    if nargin < 6
+    if nargin < 5
         return;
     end
     if isempty(save_obs_indices) || ~ismember(obs_idx, save_obs_indices)
