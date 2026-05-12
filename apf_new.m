@@ -1,4 +1,4 @@
-function [Xf, Xp] = apf_new(F,sx,sz,h,NT,n_obs,z,H,X0,save_obs_indices,snapshot_cfg)
+function [Xf, Xp] = apf_new(F,sx,sz,h,NT,n_obs,z,H,X0,save_step_indices,snapshot_cfg)
 % function [Xf, Xp] = apf(F,sx,sz,h,NT,n_obs,z,H,X0)
 % a
 % F : Lorenz 96 forcing parameter
@@ -20,12 +20,12 @@ function [Xf, Xp] = apf_new(F,sx,sz,h,NT,n_obs,z,H,X0,save_obs_indices,snapshot_
 % recovers the no. of particles (N), the no. of slow oscillators (nosc)
 [Dx, N] = size(X0);
 if nargin < 10
-    save_obs_indices = [];
+    save_step_indices = [];
 end
 if nargin < 11
     snapshot_cfg = struct();
 end
-save_obs_indices = unique(save_obs_indices(:))';
+save_step_indices = unique(save_step_indices(:))';
 
 % initialisation
 nt=NT/n_obs; % choose NT and obs such that obs| NT
@@ -99,7 +99,7 @@ for obs_idx=1:nt % it was i
    % save_snapshot_on_the_fly(snapshot_cfg, save_obs_indices, obs_idx, X, w);
 % --- NEW: Save snapshot at intermediate steps ---
         current_step = (obs_idx - 1) * n_obs + inner_idx;
-        save_snapshot_on_the_fly(snapshot_cfg, save_obs_indices, current_step, Xnew, w);
+        save_snapshot_on_the_fly(snapshot_cfg, save_step_indices, current_step, X, w);
     % resampling
     idx = randsample(1:N, N, true, w);
     Xold = X(:, idx);
