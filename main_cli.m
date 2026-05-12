@@ -53,7 +53,7 @@ function main_cli(sx, sz, is_N_fixed, fig_dir)
 
     
      DxArray=[10,50];
-      save_step_indices = [0, 10, 15, 70, 100, 130];
+      save_step_indices = [0, 10,  100, 1400,9000];
     snapshot_root_dir = fullfile(fig_dir, 'snapshots');
     if ~exist(snapshot_root_dir, 'dir')
         mkdir(snapshot_root_dir);

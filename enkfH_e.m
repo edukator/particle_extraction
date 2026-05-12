@@ -39,6 +39,8 @@ for n = 2:(NT+1)  %   NOT  NT, IT IS   NT+1;
 
         % predictive mean
           xp(1:Dx,n) = mean(Xp,2);
+          current_step = n-1;
+          save_snapshot_on_the_fly(snapshot_cfg, save_obs_indices, current_step, Xp, uniform_weights);
            % predicted measurements & measurement covariance
           %Zp = Xp(obs_components,1:N);
 	  Zp=H*Xp;	
@@ -66,7 +68,8 @@ for n = 2:(NT+1)  %   NOT  NT, IT IS   NT+1;
               
            Zn = z(:,obs_counter) + sqrt(s2z)*randn([Dobs N]);
            Xf = Xp + Kg*(Zn-Zp);
-           save_snapshot_on_the_fly(snapshot_cfg, save_obs_indices, obs_counter, Xf, uniform_weights);
+           obs_step = current_step;
+           save_snapshot_on_the_fly(snapshot_cfg, save_obs_indices, obs_step, Xf, uniform_weights);
 
            % updated mean
            xf(:,obs_counter+1) = mean(Xf,2);
@@ -91,6 +94,8 @@ for n = 2:(NT+1)  %   NOT  NT, IT IS   NT+1;
           Xp = Xold + h*Xdrift + WX;
           Xold = Xp;
           xp(1:Dx,n) = mean(Xp,2);% no need may be
+          current_step = n-1;
+          save_snapshot_on_the_fly(snapshot_cfg, save_obs_indices, current_step, Xp, uniform_weights);
            
 
 

@@ -66,7 +66,9 @@ for obs_idx=1:nt
 
         % prediction
         Xold=Xnew;
-        Xp(:,(obs_idx-1)*n_obs+inner_idx+1)=Xnew*w';
+        current_step = (obs_idx-1)*n_obs + inner_idx;
+        Xp(:,current_step+1)=Xnew*w';
+        save_snapshot_on_the_fly(snapshot_cfg, save_obs_indices, current_step, Xnew, w);
        % fprintf("finer_idx  % d, Xp stored at   %d \n", finer_idx_counter,(obs_idx-1)*n_obs+inner_idx+1);
    end 
    
@@ -84,7 +86,8 @@ for obs_idx=1:nt
        
        % estimation
        Xf(:,obs_idx+1) = Xnew*w';  %%% is it the correct place ?  (obs_idx+1)
-       save_snapshot_on_the_fly(snapshot_cfg, save_obs_indices, obs_idx, Xnew, w);
+       obs_step = obs_idx*n_obs;
+       save_snapshot_on_the_fly(snapshot_cfg, save_obs_indices, obs_step, Xnew, w);
        
        % fprintf("finer_idx  % d, Xp stored at   %d \n", finer_idx_counter,(obs_idx-1)*n_obs+inner_idx+1);     
        % Resampling
