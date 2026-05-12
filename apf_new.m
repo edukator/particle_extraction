@@ -84,6 +84,10 @@ for obs_idx=1:nt % it was i
         WX = sxsqrth*randn(Dx,N);
         Xdrift = l96dxdt(X,F,Dx);
         X = X + h*Xdrift + WX;
+       
+% --- NEW: Save snapshot at intermediate steps ---
+        current_step = (obs_idx - 1) * n_obs + jj;
+        save_snapshot_on_the_fly(snapshot_cfg, save_step_indices, current_step, X, w);
     end %jj    
 
     % weights
@@ -96,10 +100,7 @@ for obs_idx=1:nt % it was i
     % estimates
 
     Xf(:,obs_idx+1) = X*w';  %%% 
-   % save_snapshot_on_the_fly(snapshot_cfg, save_obs_indices, obs_idx, X, w);
-% --- NEW: Save snapshot at intermediate steps ---
-        current_step = (obs_idx - 1) * n_obs + inner_idx;
-        save_snapshot_on_the_fly(snapshot_cfg, save_step_indices, current_step, X, w);
+   
     % resampling
     idx = randsample(1:N, N, true, w);
     Xold = X(:, idx);
