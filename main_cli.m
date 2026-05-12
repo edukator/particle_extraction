@@ -14,7 +14,7 @@ function main_cli(sx, sz, is_N_fixed, fig_dir)
     % LORENZ 96 parameters
     F       = 8;        % forcing parameter
     he      = 1e-3;     % time step, standard Euler
-    t_final = 1;       % duration of the simulation in natural time units
+    t_final = 10;       % duration of the simulation in natural time units
     NTe     = fix(t_final/he);  % no. of discrete time steps, standard Euler
 
     % sz, sx are now taken from input arguments
@@ -43,7 +43,7 @@ function main_cli(sx, sz, is_N_fixed, fig_dir)
     parhyper.Lm    = 0.8;
 
     %% barrier parameters
-    r_obs                  = 4; % not used ?
+    r_obs                  = 4;
 
     barrier_params.mu      = 50;     
     barrier_params.p       = r_obs;
@@ -51,8 +51,8 @@ function main_cli(sx, sz, is_N_fixed, fig_dir)
 
     dummy_params = struct();
 
-    %DxArray = [10,50,100,250,500,750,1000,1500,2000];
-     DxArray=[10,50,100,150];
+    
+     DxArray=[10,50];
     save_obs_indices = [1, 7, 10, 13];
     snapshot_root_dir = fullfile(fig_dir, 'snapshots');
     if ~exist(snapshot_root_dir, 'dir')
