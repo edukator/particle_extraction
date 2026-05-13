@@ -100,6 +100,8 @@ for obs_idx=1:nt % it was i
     % estimates
 
     Xf(:,obs_idx+1) = X*w';  %%% 
+    obs_step = obs_idx*n_obs;
+    save_snapshot_on_the_fly(snapshot_cfg, save_step_indices, obs_step, X, w);
    
     % resampling
     idx = randsample(1:N, N, true, w);
