@@ -45,15 +45,15 @@ function main_cli(sx, sz, is_N_fixed, fig_dir)
     %% barrier parameters
     r_obs                  = 4;
 
-    barrier_params.mu      = 50;     
+    barrier_params.mu      = 80;     
     barrier_params.p       = r_obs;
     barrier_params.k       = 100;
 
     dummy_params = struct();
 
     
-     DxArray=[10,50];
-      save_step_indices = [0, 10,  100, 1400,9000];
+     DxArray=[10];
+      save_step_indices = [0, 10];
     snapshot_root_dir = fullfile(fig_dir, 'snapshots');
     if ~exist(snapshot_root_dir, 'dir')
         mkdir(snapshot_root_dir);
