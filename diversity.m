@@ -4,7 +4,7 @@
 
 % 1. Specify the path to your generated .mat snapshot file
 %file_path = '/snapshots/Dx_500/Barrier_SIR_step_01400.mat'; % Change this!
-file_path = 'small/snapshots/Dx_10/Barrier_SIR_step_00010.mat';
+file_path = 'dene/snapshots/Dx_100/Barrier_SIR_step_01000.mat';
 % Load the data
 if ~exist(file_path, 'file')
     error('File not found: %s. Please check the path.', file_path);

@@ -52,8 +52,8 @@ function main_cli(sx, sz, is_N_fixed, fig_dir)
     dummy_params = struct();
 
     
-     DxArray=[10];
-      save_step_indices = [0, 10];
+     DxArray=[100];
+      save_step_indices = [10,1000];
     snapshot_root_dir = fullfile(fig_dir, 'snapshots');
     if ~exist(snapshot_root_dir, 'dir')
         mkdir(snapshot_root_dir);
@@ -70,7 +70,7 @@ function main_cli(sx, sz, is_N_fixed, fig_dir)
 
     % NArray: fixed or equal to DxArray, depending on input flag
     if is_N_fixed
-        NArray = 100*ones(size(DxArray));
+        NArray = 500*ones(size(DxArray));
     else
         NArray = DxArray;
     end
