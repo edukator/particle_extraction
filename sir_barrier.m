@@ -1,6 +1,6 @@
 
 
-function [Xf, Xp,resampling_counter,W_history] = sir_barrier(F,sx,sz,h,NT,n_obs,z,H,X0,ness_thr,barrier_params)
+function [Xf, Xp] = sir_barrier(F,sx,sz,h,NT,n_obs,z,H,X0,ness_thr,barrier_params,save_obs_indices,snapshot_cfg)
 
 %
 % F : Lorenz 96 forcing parameter
@@ -21,6 +21,13 @@ function [Xf, Xp,resampling_counter,W_history] = sir_barrier(F,sx,sz,h,NT,n_obs,
 
 % recovers the no. of particles (N), 
 [Dx, N] = size(X0);
+if nargin < 12
+    save_obs_indices = [];
+end
+if nargin < 13
+    snapshot_cfg = struct();
+end
+save_obs_indices = unique(save_obs_indices(:))';
 
 nt=NT/n_obs; % choose NT and obs such that obs| NT
 
@@ -49,9 +56,7 @@ k=barrier_params.k;
 %
 % --Time loop
 %
-resampling_counter=0;
-
-W_history   = cell(nt, 1);   % allocate once
+save_snapshot_on_the_fly(snapshot_cfg, save_obs_indices, 0, X0, weight);
 % centers are on the obs space
 prev_center=H*mean(X0,2);  % Initialize center of 1st hypercube in OBS from initial particle positions.
 
@@ -83,7 +88,9 @@ for obs_idx=1:nt
 
         % prediction
         Xold=Xnew;
-        Xp(:,(obs_idx-1)*n_obs+inner_idx+1)=Xnew*weight';
+        current_step = (obs_idx-1)*n_obs + inner_idx;
+        Xp(:,current_step+1)=Xnew*weight';
+        save_snapshot_on_the_fly(snapshot_cfg, save_obs_indices, current_step, Xnew, weight);
        % fprintf("finer_idx  % d, Xp stored at   %d \n", finer_idx_counter,(obs_idx-1)*n_obs+inner_idx+1);
        
    end 
@@ -107,8 +114,8 @@ for obs_idx=1:nt
        weight = wu ./ sum(wu);
        % estimation
        Xf(:,obs_idx+1) = Xnew*weight';  %%% is it the correct place ?  (obs_idx+1)
-       
-        W_history{obs_idx} = weight;     %  % Save weights before resampling
+       obs_step = obs_idx*n_obs;
+       save_snapshot_on_the_fly(snapshot_cfg, save_obs_indices, obs_step, Xnew, weight);
        % fprintf("finer_idx  % d, Xp stored at   %d \n", finer_idx_counter,(obs_idx-1)*n_obs+inner_idx+1);     
        % Resampling
        NESS = (1/sum(weight.^2))/N; 
@@ -118,7 +125,6 @@ for obs_idx=1:nt
             Xold = Xnew;
             weight= ones([1 N])/N;
             lw = zeros([1 N]);
-            resampling_counter=resampling_counter+1;
        end %if
        
    %fprintf("--------------\n");

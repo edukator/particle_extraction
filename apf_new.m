@@ -1,4 +1,4 @@
-function [Xf, Xp,W_history] = apf_new(F,sx,sz,h,NT,n_obs,z,H,X0)
+function [Xf, Xp] = apf_new(F,sx,sz,h,NT,n_obs,z,H,X0,save_step_indices,snapshot_cfg)
 % function [Xf, Xp] = apf(F,sx,sz,h,NT,n_obs,z,H,X0)
 % a
 % F : Lorenz 96 forcing parameter
@@ -19,6 +19,13 @@ function [Xf, Xp,W_history] = apf_new(F,sx,sz,h,NT,n_obs,z,H,X0)
 
 % recovers the no. of particles (N), the no. of slow oscillators (nosc)
 [Dx, N] = size(X0);
+if nargin < 10
+    save_step_indices = [];
+end
+if nargin < 11
+    snapshot_cfg = struct();
+end
+save_step_indices = unique(save_step_indices(:))';
 
 % initialisation
 nt=NT/n_obs; % choose NT and obs such that obs| NT
@@ -34,9 +41,7 @@ s2z = sz^2;
 s2x=sx^2;
 % time steps
 sxsqrth=sx*sqrt(h);
-resampling_counter=0;
-
-W_history   = cell(nt, 1);   % allocate once
+save_snapshot_on_the_fly(snapshot_cfg, save_step_indices, 0, X0, w);
 
 %
 % --Time loop
@@ -79,6 +84,10 @@ for obs_idx=1:nt % it was i
         WX = sxsqrth*randn(Dx,N);
         Xdrift = l96dxdt(X,F,Dx);
         X = X + h*Xdrift + WX;
+       
+% --- NEW: Save snapshot at intermediate steps ---
+        current_step = (obs_idx - 1) * n_obs + jj;
+        save_snapshot_on_the_fly(snapshot_cfg, save_step_indices, current_step, X, w);
     end %jj    
 
     % weights
@@ -87,10 +96,13 @@ for obs_idx=1:nt % it was i
     lw = lw - max(lw);
     wu = exp(lw);
     w = wu ./ sum(wu);
-    W_history{obs_idx} = w;     %  % Save weights before resampling    
+   
     % estimates
 
     Xf(:,obs_idx+1) = X*w';  %%% 
+    obs_step = obs_idx*n_obs;
+    save_snapshot_on_the_fly(snapshot_cfg, save_step_indices, obs_step, X, w);
+   
     % resampling
     idx = randsample(1:N, N, true, w);
     Xold = X(:, idx);

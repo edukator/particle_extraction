@@ -1,0 +1,1680 @@
+diff --git a/APFFilter.m b/APFFilter.m
+index a338a263ddc7152a32bcd24b7d104afa7efdd96a..51bcc572cb1366af0042357a46299cacc7ee8da1 100644
+--- a/APFFilter.m
++++ b/APFFilter.m
+@@ -1,25 +1,25 @@
+ classdef APFFilter < AbstractFilter
+     methods
+         function obj = APFFilter(params, DxArray)
+             obj@AbstractFilter(params, 'APF', DxArray);
+         end
+     end
+     methods (Access = protected)
+         function [Xf, Xp] = runFilter(obj)
+             p = obj.params;
+-            save_obs_indices = [];
+-            if isfield(p, 'save_obs_indices')
+-                save_obs_indices = p.save_obs_indices;
++            save_step_indices = [];
++            if isfield(p, 'save_step_indices')
++                save_step_indices = p.save_step_indices;
+             end
+             snapshot_cfg = struct();
+             if isfield(p, 'snapshot_dir')
+                 snapshot_cfg.dir = p.snapshot_dir;
+                 snapshot_cfg.filter_name = 'APF';
+                 snapshot_cfg.Dx = p.Dx;
+             end
+             [Xf, Xp] = apf_new(p.F, p.sx, p.sz, ...
+                                p.he, p.NTe, p.n_obs, ...
+-                               p.ze_sparse, p.H, p.X0, save_obs_indices, snapshot_cfg);
++                               p.ze_sparse, p.H, p.X0, save_step_indices, snapshot_cfg);
+         end
+     end
+ end
+diff --git a/BarrierFilter.m b/BarrierFilter.m
+index 2c422bad39086247a50225e16c73e8bbde862014..be30dfdea8eff614eeef3ca06fd7d9716959966f 100644
+--- a/BarrierFilter.m
++++ b/BarrierFilter.m
+@@ -1,27 +1,27 @@
+ classdef BarrierFilter < AbstractFilter
+     methods
+         function obj = BarrierFilter(params, DxArray)
+             obj@AbstractFilter(params, 'Barrier-SIR', DxArray);
+         end
+     end
+     methods (Access = protected)
+         function [Xf, Xp] = runFilter(obj)
+             p = obj.params;
+-            save_obs_indices = [];
+-            if isfield(p, 'save_obs_indices')
+-                save_obs_indices = p.save_obs_indices;
++            save_step_indices = [];
++            if isfield(p, 'save_step_indices')
++                save_step_indices = p.save_step_indices;
+             end
+             snapshot_cfg = struct();
+             if isfield(p, 'snapshot_dir')
+                 snapshot_cfg.dir = p.snapshot_dir;
+                 snapshot_cfg.filter_name = 'Barrier_SIR';
+                 snapshot_cfg.Dx = p.Dx;
+             end
+             [Xf, Xp] = sir_barrier(p.F, p.sx, p.sz, ...
+                                       p.he, p.NTe, p.n_obs, ...
+                                       p.ze_sparse, p.H, p.X0, ...
+                                       p.ness_thr,...
+-                                       p.barrier_params, save_obs_indices, snapshot_cfg);
++                                       p.barrier_params, save_step_indices, snapshot_cfg);
+         end
+     end
+ end
+diff --git a/ENKFFilter.m b/ENKFFilter.m
+index ba063540ee3ecd6465974ab6193d9102376c1a45..2e46fd80c56f3613249c382edbdcfd5578d5e067 100644
+--- a/ENKFFilter.m
++++ b/ENKFFilter.m
+@@ -1,27 +1,27 @@
+ classdef ENKFFilter < AbstractFilter
+     methods
+         function obj = ENKFFilter(params, DxArray)
+             obj@AbstractFilter(params, 'EnKF', DxArray);
+         end
+     end
+     methods (Access = protected)
+ 
+         function [Xf, Xp] = runFilter(obj)
+             p = obj.params;
+-            save_obs_indices = [];
+-            if isfield(p, 'save_obs_indices')
+-                save_obs_indices = p.save_obs_indices;
++            save_step_indices = [];
++            if isfield(p, 'save_step_indices')
++                save_step_indices = p.save_step_indices;
+             end
+             snapshot_cfg = struct();
+             if isfield(p, 'snapshot_dir')
+                 snapshot_cfg.dir = p.snapshot_dir;
+                 snapshot_cfg.filter_name = 'EnKF';
+                 snapshot_cfg.Dx = p.Dx;
+             end
+             [Xf, Xp] = enkfH_e(p.F, p.sx, p.sz, ...
+                               p.he, p.NTe, p.n_obs, ...
+                               p.ze_sparse, p.H, p.X0, ...
+-                              p.Dz, p.fixed_observed_components, save_obs_indices, snapshot_cfg);
++                              p.Dz, p.fixed_observed_components, save_step_indices, snapshot_cfg);
+         end
+     end
+ end
+diff --git a/ENKF_Barrier_Filter.m b/ENKF_Barrier_Filter.m
+index 29d0973a96be129bcbbbeb97e54f5d04984c11bb..868e45fbcbcc343b2081fa210ba6c1b0d0ef90ba 100644
+--- a/ENKF_Barrier_Filter.m
++++ b/ENKF_Barrier_Filter.m
+@@ -1,27 +1,27 @@
+ classdef ENKF_Barrier_Filter < AbstractFilter
+     methods
+         function obj = ENKF_Barrier_Filter(params, DxArray)
+             obj@AbstractFilter(params, 'Barrier-EnKF', DxArray);
+         end
+     end
+     methods (Access = protected)
+ 
+         function [Xf, Xp] = runFilter(obj)
+             p = obj.params;
+-            save_obs_indices = [];
+-            if isfield(p, 'save_obs_indices')
+-                save_obs_indices = p.save_obs_indices;
++            save_step_indices = [];
++            if isfield(p, 'save_step_indices')
++                save_step_indices = p.save_step_indices;
+             end
+             snapshot_cfg = struct();
+             if isfield(p, 'snapshot_dir')
+                 snapshot_cfg.dir = p.snapshot_dir;
+                 snapshot_cfg.filter_name = 'Barrier_EnKF';
+                 snapshot_cfg.Dx = p.Dx;
+             end
+             [Xf, Xp] = enkfH_e_Barrier(p.F, p.sx, p.sz, ...
+                               p.he, p.NTe, p.n_obs, ...
+                               p.ze_sparse, p.H, p.X0, ...
+-                              p.Dz, p.fixed_observed_components,p.barrier_params, save_obs_indices, snapshot_cfg);
++                              p.Dz, p.fixed_observed_components,p.barrier_params, save_step_indices, snapshot_cfg);
+         end
+     end
+ end
+diff --git a/GUIDED_GIRSANOV_BARRIER_a0.m b/GUIDED_GIRSANOV_BARRIER_a0.m
+index 2904812cd20352cbd5134db5c59bc824c455e242..62ea8540105e8a9aeaf914f8eea6f0e79bf52803 100644
+--- a/GUIDED_GIRSANOV_BARRIER_a0.m
++++ b/GUIDED_GIRSANOV_BARRIER_a0.m
+@@ -1,26 +1,26 @@
+ classdef GUIDED_GIRSANOV_BARRIER_a0 < AbstractFilter
+     methods
+         function obj = GUIDED_GIRSANOV_BARRIER_a0(params, DxArray)
+             obj@AbstractFilter(params, 'Guided_Girsanov_Barrier_a0', DxArray);
+         end
+     end
+     methods (Access = protected)
+ 
+         function [Xf, Xp] = runFilter(obj)
+             p = obj.params;
+-            save_obs_indices = [];
+-            if isfield(p, 'save_obs_indices')
+-                save_obs_indices = p.save_obs_indices;
++            save_step_indices = [];
++            if isfield(p, 'save_step_indices')
++                save_step_indices = p.save_step_indices;
+             end
+             snapshot_cfg = struct();
+             if isfield(p, 'snapshot_dir')
+                 snapshot_cfg.dir = p.snapshot_dir;
+                 snapshot_cfg.filter_name = 'Guided_Girsanov_Barrier_a0';
+                 snapshot_cfg.Dx = p.Dx;
+             end
+             [Xf, Xp]= sir_guided_girsanov_barrier_a0(p.F,p.sx,p.sz,p.he,p.NTe,p.n_obs, ...
+-                p.ze_sparse,p.H,p.X0,p.ness_thr, p.barrier_params,save_obs_indices,snapshot_cfg);
++                p.ze_sparse,p.H,p.X0,p.ness_thr, p.barrier_params,save_step_indices,snapshot_cfg);
+             
+         end
+     end
+ end
+diff --git a/GUIDED_GIRSANOV_a0.m b/GUIDED_GIRSANOV_a0.m
+index d747c088268c22dc20750a7a391a3892744b4ce8..24a70a8ef9ebbb78e11659deec6b55f68bd264d2 100644
+--- a/GUIDED_GIRSANOV_a0.m
++++ b/GUIDED_GIRSANOV_a0.m
+@@ -1,26 +1,26 @@
+ classdef GUIDED_GIRSANOV_a0 < AbstractFilter
+     methods
+         function obj = GUIDED_GIRSANOV_a0(params, DxArray)
+             obj@AbstractFilter(params, 'Guided_Girsanov_a0', DxArray);
+         end
+     end
+     methods (Access = protected)
+ 
+         function [Xf, Xp] = runFilter(obj)
+             p = obj.params;
+-            save_obs_indices = [];
+-            if isfield(p, 'save_obs_indices')
+-                save_obs_indices = p.save_obs_indices;
++            save_step_indices = [];
++            if isfield(p, 'save_step_indices')
++                save_step_indices = p.save_step_indices;
+             end
+             snapshot_cfg = struct();
+             if isfield(p, 'snapshot_dir')
+                 snapshot_cfg.dir = p.snapshot_dir;
+                 snapshot_cfg.filter_name = 'Guided_Girsanov_a0';
+                 snapshot_cfg.Dx = p.Dx;
+             end
+             [Xf, Xp]= sir_guided_girsanov_a0(p.F,p.sx,p.sz,p.he,p.NTe,p.n_obs, ...
+-                p.ze_sparse,p.H,p.X0,p.ness_thr,save_obs_indices,snapshot_cfg);
++                p.ze_sparse,p.H,p.X0,p.ness_thr,save_step_indices,snapshot_cfg);
+             
+         end
+     end
+ end
+diff --git a/GUIDED_NOGIRSANOV_BARRIER_a0.m b/GUIDED_NOGIRSANOV_BARRIER_a0.m
+index 71c01701c3c46384c0030517d476a766be1e56a9..b16d5f99c36384f1cc1442ff49b97b48f6281b83 100644
+--- a/GUIDED_NOGIRSANOV_BARRIER_a0.m
++++ b/GUIDED_NOGIRSANOV_BARRIER_a0.m
+@@ -1,26 +1,26 @@
+ classdef GUIDED_NOGIRSANOV_BARRIER_a0 < AbstractFilter
+     methods
+         function obj = GUIDED_NOGIRSANOV_BARRIER_a0(params, DxArray)
+             obj@AbstractFilter(params, 'Guided_NoGirsanov_Barrier_a0', DxArray);
+         end
+     end
+     methods (Access = protected)
+ 
+         function [Xf, Xp] = runFilter(obj)
+             p = obj.params;
+-            save_obs_indices = [];
+-            if isfield(p, 'save_obs_indices')
+-                save_obs_indices = p.save_obs_indices;
++            save_step_indices = [];
++            if isfield(p, 'save_step_indices')
++                save_step_indices = p.save_step_indices;
+             end
+             snapshot_cfg = struct();
+             if isfield(p, 'snapshot_dir')
+                 snapshot_cfg.dir = p.snapshot_dir;
+                 snapshot_cfg.filter_name = 'Guided_NoGirsanov_Barrier_a0';
+                 snapshot_cfg.Dx = p.Dx;
+             end
+             [Xf, Xp]=  sir_guided_NOgirsanov_barrier_a0(p.F,p.sx,p.sz,p.he,p.NTe,p.n_obs, ...
+-                p.ze_sparse,p.H,p.X0,p.ness_thr,p.barrier_params,save_obs_indices,snapshot_cfg);
++                p.ze_sparse,p.H,p.X0,p.ness_thr,p.barrier_params,save_step_indices,snapshot_cfg);
+             
+         end
+     end
+ end
+diff --git a/GUIDED_NOGIRSANOV_a0.m b/GUIDED_NOGIRSANOV_a0.m
+index 5bdda8b62ecfb0620a8538a0137dceca93538fb3..dfaee3035aec90ff56ce579e0e54fde14f456071 100644
+--- a/GUIDED_NOGIRSANOV_a0.m
++++ b/GUIDED_NOGIRSANOV_a0.m
+@@ -1,26 +1,26 @@
+ classdef GUIDED_NOGIRSANOV_a0 < AbstractFilter
+     methods
+         function obj = GUIDED_NOGIRSANOV_a0(params, DxArray)
+             obj@AbstractFilter(params, 'Guided_NoGirsanov_a0', DxArray);
+         end
+     end
+     methods (Access = protected)
+ 
+         function [Xf, Xp] = runFilter(obj)
+             p = obj.params;
+-            save_obs_indices = [];
+-            if isfield(p, 'save_obs_indices')
+-                save_obs_indices = p.save_obs_indices;
++            save_step_indices = [];
++            if isfield(p, 'save_step_indices')
++                save_step_indices = p.save_step_indices;
+             end
+             snapshot_cfg = struct();
+             if isfield(p, 'snapshot_dir')
+                 snapshot_cfg.dir = p.snapshot_dir;
+                 snapshot_cfg.filter_name = 'Guided_NoGirsanov_a0';
+                 snapshot_cfg.Dx = p.Dx;
+             end
+             [Xf, Xp]= sir_guided_NOgirsanov_a0(p.F,p.sx,p.sz,p.he,p.NTe,p.n_obs, ...
+-                p.ze_sparse,p.H,p.X0,p.ness_thr,save_obs_indices,snapshot_cfg);
++                p.ze_sparse,p.H,p.X0,p.ness_thr,save_step_indices,snapshot_cfg);
+             
+         end
+     end
+ end
+diff --git a/SIRFilter.m b/SIRFilter.m
+index 512e287980bdf9648f02ca15083e0783e7de5d16..8af1bff768826e01dcdbf53f62d687bb90a85bf4 100644
+--- a/SIRFilter.m
++++ b/SIRFilter.m
+@@ -1,27 +1,27 @@
+ classdef SIRFilter < AbstractFilter
+     methods
+         function obj = SIRFilter(params, DxArray)
+             obj@AbstractFilter(params, 'SIR', DxArray);
+         end
+     end
+      methods (Access = protected)
+ 
+         function [Xf, Xp] = runFilter(obj)
+             p = obj.params;
+-            save_obs_indices = [];
+-            if isfield(p, 'save_obs_indices')
+-                save_obs_indices = p.save_obs_indices;
++            save_step_indices = [];
++            if isfield(p, 'save_step_indices')
++                save_step_indices = p.save_step_indices;
+             end
+             snapshot_cfg = struct();
+             if isfield(p, 'snapshot_dir')
+                 snapshot_cfg.dir = p.snapshot_dir;
+                 snapshot_cfg.filter_name = 'SIR';
+                 snapshot_cfg.Dx = p.Dx;
+             end
+             [Xf, Xp] = sir(p.F, p.sx, p.sz, ...
+                           p.he, p.NTe, p.n_obs, ...
+-                          p.ze_sparse, p.H, p.X0, p.ness_thr, save_obs_indices, snapshot_cfg);
++                          p.ze_sparse, p.H, p.X0, p.ness_thr, save_step_indices, snapshot_cfg);
+         end
+     
+     end
+ end
+diff --git a/apf_new.m b/apf_new.m
+index 013aaec7d0ea98d6c7845cada0a748f1d05eaba2..0cb1445838bf2db20cc91cb494e13b008d4b6bdb 100644
+--- a/apf_new.m
++++ b/apf_new.m
+@@ -1,104 +1,107 @@
+-function [Xf, Xp] = apf_new(F,sx,sz,h,NT,n_obs,z,H,X0,save_obs_indices,snapshot_cfg)
++function [Xf, Xp] = apf_new(F,sx,sz,h,NT,n_obs,z,H,X0,save_step_indices,snapshot_cfg)
+ % function [Xf, Xp] = apf(F,sx,sz,h,NT,n_obs,z,H,X0)
+ % a
+ % F : Lorenz 96 forcing parameter
+ % sx : process noise std
+ % sz : observation noise std
+ % h : Euler integration step
+ % NT : no. of discrete time steps
+ % n_obs : observations are collected every n_obs discrete time units
+ % z : observations
+ % H : observation matrix
+ % X0 : initial particles 
+ % 
+ % Xf : filtered states
+ % Xp : predicted states
+ %
+ % Standard particle filter, resampling conditional on ESS
+ %
+ 
+ % recovers the no. of particles (N), the no. of slow oscillators (nosc)
+ [Dx, N] = size(X0);
+ if nargin < 10
+-    save_obs_indices = [];
++    save_step_indices = [];
+ end
+ if nargin < 11
+     snapshot_cfg = struct();
+ end
+-save_obs_indices = unique(save_obs_indices(:))';
++save_step_indices = unique(save_step_indices(:))';
+ 
+ % initialisation
+ nt=NT/n_obs; % choose NT and obs such that obs| NT
+ Xf = zeros([Dx nt+1]);      % filtered estimates, at obs
+ Xp = zeros([Dx NT+1]);      % predicted estimates, at all times  
+ Xf(:,1) = mean(X0,2);
+ Xp(:,1) = mean(X0,2);
+ Xold = X0;                % auxiliary
+ w= ones([1 N])/N;        % initial weights
+ 
+ % noise variance
+ s2z = sz^2;
+ s2x=sx^2;
+ % time steps
+ sxsqrth=sx*sqrt(h);
+-save_snapshot_on_the_fly(snapshot_cfg, save_obs_indices, 0, X0, w);
++save_snapshot_on_the_fly(snapshot_cfg, save_step_indices, 0, X0, w);
+ 
+ %
+ % --Time loop
+ %
+ for obs_idx=1:nt % it was i
+      obs_z=z(:,obs_idx); %  i eliminated zeros, z(1) gives observed value at t=h 
+     % auxiliary states & prediction
+     Xa = Xold;
+     Xr = Xold;
+     
+      for    inner_idx=1:n_obs 
+         % auxiliary states
+         Xdrift = l96dxdt(Xa,F,Dx);
+         Xa = Xa + h*Xdrift;
+ 
+         % predictions
+         dWx=sxsqrth*randn(Dx,N);
+         Xdrift = l96dxdt(Xr,F,Dx);
+         Xr = Xr + h*Xdrift + dWx;
+         %Xp(:,(i-1)*n_obs+jj+1) = mean(Xr,2);
+         
+         Xp(:,(obs_idx-1)*n_obs+inner_idx+1)=Xr*w'; % it was mean;
++        % --- NEW: Save snapshot at intermediate steps ---
++        current_step = (obs_idx - 1) * n_obs + inner_idx;
++        save_snapshot_on_the_fly(snapshot_cfg, save_step_indices, current_step, Xr, w);
+         
+             
+     end %jj
+ 
+     % auxiliary weights
+     allk = -(1/(2*s2z)) .* sum(( obs_z - H*Xa ).^2);  % log-likelihood
+     alw = allk - max(allk);
+     awu = exp(alw);
+     aw = awu ./ sum(awu);
+ 
+     % auxiliary resampling
+     X = Xold;
+     idxa = randsample(1:N, N, true, aw);
+     X(:, 1:N) = X(:, idxa);
+ 
+     % sampling up to the next observation
+     for jj = 1:n_obs
+         WX = sxsqrth*randn(Dx,N);
+         Xdrift = l96dxdt(X,F,Dx);
+         X = X + h*Xdrift + WX;
+     end %jj    
+ 
+     % weights
+     llk = -(1/(2*s2z)) .* sum(( obs_z - H*X ).^2);  % log-likelihood
+     lw=llk-allk(idxa);
+     lw = lw - max(lw);
+     wu = exp(lw);
+     w = wu ./ sum(wu);
+    
+     % estimates
+ 
+     Xf(:,obs_idx+1) = X*w';  %%% 
+-    save_snapshot_on_the_fly(snapshot_cfg, save_obs_indices, obs_idx, X, w);
++    save_snapshot_on_the_fly(snapshot_cfg, save_step_indices, obs_idx * n_obs, X, w);
+     % resampling
+     idx = randsample(1:N, N, true, w);
+     Xold = X(:, idx);
+     
+ end % observation index i
+diff --git a/enkfH_e.m b/enkfH_e.m
+index 386aa38a79e6bb2210a3b2fbac01cc53b136db4e..54e0dc3cef5bdc8d4a39cbb78160161ef7d377e4 100644
+--- a/enkfH_e.m
++++ b/enkfH_e.m
+@@ -1,94 +1,94 @@
+-function [xf, xp] = enkfH_e(F,sx,sz,h,NT,n_obs,z,H,X0,Dobs,obs_components,save_obs_indices,snapshot_cfg)
++function [xf, xp] = enkfH_e(F,sx,sz,h,NT,n_obs,z,H,X0,Dobs,obs_components,save_step_indices,snapshot_cfg)
+ 
+ % recovers the no. of particles (N), the no. of slow oscillators (nosc)
+ [Dx, N] = size(X0);
+ if nargin < 12
+-    save_obs_indices = [];
++    save_step_indices = [];
+ end
+ if nargin < 13
+     snapshot_cfg = struct();
+ end
+-save_obs_indices = unique(save_obs_indices(:))';
++save_step_indices = unique(save_step_indices(:))';
+ 
+ % initialisation
+ Xold = X0;
+ 
+ nt=NT/n_obs; % choose NT and obs such that obs| NT
+ 
+ xf = zeros([Dx nt+1]);            % filtered estimates, 
+ xp = zeros([Dx n_obs*nt+1]);      % predicted estimates 
+ 
+ 
+  
+ xp(:,1) = mean(X0,2);
+ xf(:,1) = mean(X0,2);
+ 
+ s2z = sz^2;
+ obs_counter=1; % to keep track of observation stored at only obs time, 
+ uniform_weights = ones([1 N])/N;
+-save_snapshot_on_the_fly(snapshot_cfg, save_obs_indices, 0, X0, uniform_weights);
++save_snapshot_on_the_fly(snapshot_cfg, save_step_indices, 0, X0, uniform_weights);
+ 
+ 
+ for n = 2:(NT+1)  %   NOT  NT, IT IS   NT+1;
+ 
+     if rem(n,n_obs) == 1
+           WX = sx*sqrt(h)*randn([Dx N]);
+           Xdrift = l96dxdt(Xold,F,Dx);
+           %Xdrift=Xdrift./(1+h*vecnorm(Xdrift));
+           Xp = Xold + h*Xdrift + WX;
+ 
+         % predictive mean
+           xp(1:Dx,n) = mean(Xp,2);
+            % predicted measurements & measurement covariance
+           %Zp = Xp(obs_components,1:N);
+ 	  Zp=H*Xp;	
+           
+           zp = mean(Zp,2);
+           cZp = Zp-zp;
+           Cz = cZp*cZp'./(N-1) + s2z*eye(Dobs);
+               % cross-covariance
+           cXp = Xp - xp(:,n);
+           Cxz = (cXp*cZp')/(N-1);
+ 
+ 
+ 
+            % Kalman gain
+             try
+                 Kg = Cxz/Cz;
+             catch ME
+                 fprintf(1,'EnKF w/ Euler: %s\n', ME.message);
+                 xf(:,n:NT) = nan;
+                 xp(:,n:NT) = nan;
+                 return;
+             end% try end
+               % updated ensemble
+               %Zn = z(obs_idx,n) + sqrt(s2z)*randn([Dobs N]);
+               
+            Zn = z(:,obs_counter) + sqrt(s2z)*randn([Dobs N]);
+            Xf = Xp + Kg*(Zn-Zp);
+-           save_snapshot_on_the_fly(snapshot_cfg, save_obs_indices, obs_counter, Xf, uniform_weights);
++           save_snapshot_on_the_fly(snapshot_cfg, save_step_indices, obs_counter * n_obs, Xf, uniform_weights);
+ 
+            % updated mean
+            xf(:,obs_counter+1) = mean(Xf,2);
+ 
+ 
+             % for the next step 
+            Xold = Xf;
+            obs_counter=obs_counter+1;
+            
+ 
+ 
+ 
+           
+     
+ 
+      % end 
+     else % if no observation
+              % no observations: forward Euler sampling     
+           WX = sx*sqrt(h)*randn([Dx N]);
+           Xdrift = l96dxdt(Xold,F,Dx);
+           %Xdrift=Xdrift./(1+h*vecnorm(Xdrift));
+           Xp = Xold + h*Xdrift + WX;
+           Xold = Xp;
+           xp(1:Dx,n) = mean(Xp,2);% no need may be
+            
+diff --git a/enkfH_e_Barrier.m b/enkfH_e_Barrier.m
+index 7d32656eb6a311b96eadd307a798367066aae026..7d95f03a4d6f0fcb0021ff93c4c5343cf21ebc6e 100644
+--- a/enkfH_e_Barrier.m
++++ b/enkfH_e_Barrier.m
+@@ -1,55 +1,55 @@
+-function [xf, xp] = enkfH_e_Barrier(F,sx,sz,h,NT,n_obs,z,H,X0,Dobs,obs_components,barrier_params,save_obs_indices,snapshot_cfg)
++function [xf, xp] = enkfH_e_Barrier(F,sx,sz,h,NT,n_obs,z,H,X0,Dobs,obs_components,barrier_params,save_step_indices,snapshot_cfg)
+ 
+ % recovers the no. of particles (N),
+ [Dx, N] = size(X0);
+ if nargin < 13
+-    save_obs_indices = [];
++    save_step_indices = [];
+ end
+ if nargin < 14
+     snapshot_cfg = struct();
+ end
+-save_obs_indices = unique(save_obs_indices(:))';
++save_step_indices = unique(save_step_indices(:))';
+ 
+ % initialisation
+ Xold = X0;
+ 
+ nt=NT/n_obs; % choose NT and obs such that obs| NT
+ 
+ xf = zeros([Dx nt+1]);            % filtered estimates, 
+ xp = zeros([Dx n_obs*nt+1]);      % predicted estimates 
+ 
+ 
+  
+ xp(:,1) = mean(X0,2);
+ xf(:,1) = mean(X0,2);
+ 
+ s2z = sz^2;
+ s2x=sx^2;
+ obs_counter=1; % to keep track of observation stored at only obs time, 
+ uniform_weights = ones([1 N])/N;
+-save_snapshot_on_the_fly(snapshot_cfg, save_obs_indices, 0, X0, uniform_weights);
++save_snapshot_on_the_fly(snapshot_cfg, save_step_indices, 0, X0, uniform_weights);
+ 
+ %% Barrier hyperparameters.
+ HT      = H.';                       % transpose once
+ 
+ mu=barrier_params.mu;
+ p=barrier_params.p; % here is r0;
+ k=barrier_params.k;
+ 
+ prev_center=H*mean(X0,2);  
+ C(:,1) = prev_center; %
+ C(:,2) = z(:,obs_counter);   %as Joaquin suggested;
+ [ci,ti]=get_centers_of_hypertube(h,n_obs,C); 
+ inner_idx=1;
+ 
+ for n = 2:(NT+1)  %   NOT  NT, IT IS   NT+1;
+    
+ 
+     if rem(n,n_obs) == 1
+           % yeri burası değil.
+          
+ 
+           WX = sx*sqrt(h)*randn([Dx N]);
+           Xdrift = l96dxdt(Xold,F,Dx);
+           e    = ci(:,inner_idx) - H * Xold; 
+           inner_idx=1;
+@@ -66,51 +66,51 @@ for n = 2:(NT+1)  %   NOT  NT, IT IS   NT+1;
+           %Zp = Xp(obs_components,1:N);
+           Zp=H*Xp;
+           zp = mean(Zp,2);
+           cZp = Zp-zp;
+           Cz = cZp*cZp'./(N-1) + s2z*eye(Dobs);
+               % cross-covariance
+           cXp = Xp - xp(:,n);
+           Cxz = (cXp*cZp')/(N-1);
+ 
+ 
+ 
+            % Kalman gain
+             try
+                 Kg = Cxz/Cz;
+             catch ME
+                 fprintf(1,'EnKF w/ Euler: %s\n', ME.message);
+                 xf(:,n:NT) = nan;
+                 xp(:,n:NT) = nan;
+                 return;
+             end% try end
+               % updated ensemble
+               %Zn = z(obs_idx,n) + sqrt(s2z)*randn([Dobs N]);
+               
+            Zn = z(:,obs_counter) + sqrt(s2z)*randn([Dobs N]);
+            Xf = Xp + Kg*(Zn-Zp);
+-           save_snapshot_on_the_fly(snapshot_cfg, save_obs_indices, obs_counter, Xf, uniform_weights);
++           save_snapshot_on_the_fly(snapshot_cfg, save_step_indices, obs_counter * n_obs, Xf, uniform_weights);
+ 
+            % updated mean
+            xf(:,obs_counter+1) = mean(Xf,2);
+ 
+ 
+             % for the next step 
+            Xold = Xf;
+           prev_center=C(:,2); 
+           obs_counter=obs_counter+1; 
+           if n<NT+1 
+             C(:,1) = prev_center; %
+             C(:,2) = z(:,obs_counter);   %as Joaquin suggested;
+             [ci,ti]=get_centers_of_hypertube(h,n_obs,C); 
+           end 
+           
+           
+           
+ 
+ 
+           
+     
+ 
+      % end 
+     else % if no observation
+              % no observations: forward Euler sampling     
+diff --git a/main_cli.m b/main_cli.m
+index 0f8d49405f6bfd0e00acc705bb5ff340d62e0143..3985241c6ba355d3813198a5684a7f8544a53e4d 100644
+--- a/main_cli.m
++++ b/main_cli.m
+@@ -31,51 +31,52 @@ function main_cli(sx, sz, is_N_fixed, fig_dir)
+     n_steps = ceil(5/he);       % number of time step to skip transient solution      
+     n_obs   = ceil(tobs/he);    % number of subintervals between two observations
+ 
+     filtered_solution_indices = 1:n_obs:NTe+1; % filtered solution is computed at these indices
+     coarse_time_mesh          = he.*(0:n_obs:NTe); % time mesh corresponding to those indices
+ 
+     full_indices   = 1:NTe+1;   % ground truth signal and predicted solution are computed at these indices
+     fine_time_mesh = he*(0:NTe);
+ 
+     % Parameters for hypercube and tube preservation passed to sir_rejectproject
+     parhyper.alpha = 0.5;
+     parhyper.beta  = 1;
+     parhyper.Lm    = 0.8;
+ 
+     %% barrier parameters
+     r_obs                  = 4;
+ 
+     barrier_params.mu      = 50;     
+     barrier_params.p       = r_obs;
+     barrier_params.k       = 100;
+ 
+     dummy_params = struct();
+ 
+     
+      DxArray=[10,50];
+-    save_obs_indices = [1, 7, 10, 13];
++    % Include 0 to save the initial state X0
++    save_step_indices = [0, 10, 15, 70, 100, 130];
+     snapshot_root_dir = fullfile(fig_dir, 'snapshots');
+     if ~exist(snapshot_root_dir, 'dir')
+         mkdir(snapshot_root_dir);
+     end
+  
+ 
+     filters = {
+         SIRFilter(dummy_params,     DxArray), ...
+         ENKFFilter(dummy_params,    DxArray), ...
+         ENKF_Barrier_Filter(dummy_params, DxArray),	...
+         APFFilter(dummy_params,     DxArray), ...
+         BarrierFilter(dummy_params, DxArray)
+     };
+ 
+     % NArray: fixed or equal to DxArray, depending on input flag
+     if is_N_fixed
+         NArray = 100*ones(size(DxArray));
+     else
+         NArray = DxArray;
+     end
+ 
+     %% Main loop over dimensions
+     for iDX = 1:numel(DxArray)
+         Dx = DxArray(iDX);
+         N  = NArray(iDX);
+@@ -118,51 +119,51 @@ function main_cli(sx, sz, is_N_fixed, fig_dir)
+             truth_full = x;
+ 
+             Pd_f = mean(sum(x(:, filtered_solution_indices).^2));
+             Pd_p = mean(sum(x.^2));
+ 
+             params = struct( ...
+                 'F',                        F, ...
+                 'Dx',                       Dx, ...
+                 'sx',                       sx, ...
+                 'sz',                       sz, ...
+                 'he',                       he, ...
+                 'NTe',                      NTe, ...
+                 'n_obs',                    n_obs, ...
+                 'ze_sparse',                ze_sparse, ...
+                 'H',                        H, ...
+                 'X0',                       X0, ...
+                 'ness_thr',                 ness_thr, ...
+                 'Dz',                       Dz, ...
+                 'fixed_observed_components', fixed_observed_components, ...
+                 'truth',                    truth, ...
+                 'truth_full',               truth_full, ...
+                 'Pd_f',                     Pd_f, ...
+                 'Pd_p',                     Pd_p, ...
+                 'parhyper',                 parhyper, ...
+                 'barrier_params',           barrier_params, ...
+-                'save_obs_indices',         save_obs_indices, ...
++                'save_step_indices',         save_step_indices, ...
+                 'snapshot_dir',             fullfile(snapshot_root_dir, sprintf('Dx_%d', Dx)) ...
+             );
+ 
+             % Assign updated params to filters and run them
+             for k = 1:numel(filters)
+                 filters{k}.params = params;
+                 filters{k}.run(iDX);
+             end
+     end % Dx loop
+ 
+     % Display metrics
+     for k = 1:numel(filters)
+         disp(filters{k}.metric);
+     end
+ 
+     fprintf('Particle/weight snapshots are saved on the fly to: %s\n', snapshot_root_dir);
+ 
+     %% Plot and save as .fig (invisible)
+     f = figure('Visible', 'on');
+     hold on;
+ 
+     for k = 1:numel(filters)
+         metric = filters{k}.metric;
+         dx_values = metric.DxArray(:)';
+         mean_mse = metric.MSEf(:)';
+diff --git a/save_snapshot_on_the_fly.m b/save_snapshot_on_the_fly.m
+index ebd61b7f0abc93e869aef2fc1c56f26a9d39f7b7..ce357752f39e64837b6027e2e26c21fc3bf8742f 100644
+--- a/save_snapshot_on_the_fly.m
++++ b/save_snapshot_on_the_fly.m
+@@ -1,41 +1,40 @@
+-function save_snapshot_on_the_fly(snapshot_cfg, save_obs_indices, obs_idx, particles, weights)
+-% Save particle/weight snapshots to disk during filter execution.
++function save_snapshot_on_the_fly(snapshot_cfg, save_step_indices, current_step, particles, weights)
++%SAVE_SNAPSHOT_ON_THE_FLY Save particle/weight snapshots at configured absolute steps.
+ %
+ % snapshot_cfg fields (optional):
+-%   - dir: output directory
+-%   - filter_name: string used in output filename
+-%   - Dx: state dimension (metadata)
++%   dir         : output directory (required to actually save)
++%   filter_name : filename prefix (default 'filter')
++%   Dx          : state dimension metadata (stored in snapshot)
+ 
+     if nargin < 5
+         return;
+     end
+-    if isempty(save_obs_indices) || ~ismember(obs_idx, save_obs_indices)
++    % Check if the current absolute step is in the list of steps to save
++    if isempty(save_step_indices) || ~ismember(current_step, save_step_indices)
+         return;
+     end
+-    if isempty(snapshot_cfg) || ~isstruct(snapshot_cfg)
+-        return;
+-    end
+-    if ~isfield(snapshot_cfg, 'dir') || isempty(snapshot_cfg.dir)
++    if isempty(snapshot_cfg) || ~isstruct(snapshot_cfg) || ~isfield(snapshot_cfg, 'dir') || isempty(snapshot_cfg.dir)
+         return;
+     end
+ 
+     if ~exist(snapshot_cfg.dir, 'dir')
+         mkdir(snapshot_cfg.dir);
+     end
+ 
+     filter_name = 'filter';
+     if isfield(snapshot_cfg, 'filter_name') && ~isempty(snapshot_cfg.filter_name)
+         filter_name = snapshot_cfg.filter_name;
+     end
+ 
+     snapshot = struct();
+-    snapshot.obs_idx = obs_idx;
++    snapshot.step_idx = current_step; % Store step instead of obs_idx
+     snapshot.particles = particles;
+     snapshot.weights = weights;
+     if isfield(snapshot_cfg, 'Dx')
+         snapshot.Dx = snapshot_cfg.Dx;
+     end
+ 
+-    filename = sprintf('%s_obs_%04d.mat', filter_name, obs_idx);
++    % Update filename to reflect absolute steps (e.g., SIR_step_00150.mat)
++    filename = sprintf('%s_step_%05d.mat', filter_name, current_step);
+     save(fullfile(snapshot_cfg.dir, filename), 'snapshot');
+ end
+diff --git a/sir.m b/sir.m
+index 300f6b6c647e770950ad311788c6a57dc3033fa9..599ae7a373f2bdf033cee714a1b329085ca3a373 100644
+--- a/sir.m
++++ b/sir.m
+@@ -1,105 +1,108 @@
+ 
+ 
+-function [Xf, Xp] = sir(F,sx,sz,h,NT,n_obs,z,H,X0,ness_thr,save_obs_indices,snapshot_cfg)
++function [Xf, Xp] = sir(F,sx,sz,h,NT,n_obs,z,H,X0,ness_thr,save_step_indices,snapshot_cfg)
+ % function [Xf, Xp] = sir(F,sx,sz,h,NT,n_obs,z,X0,ness_thr)
+ %
+ % F : Lorenz 96 forcing parameter
+ % sx : process noise std
+ % sz : observation noise std
+ % h : Euler integration step
+ % NT : no. of discrete time steps
+ % n_obs : observations are collected every n_obs discrete time units
+ % z : observations
+ % H : observation matrix
+ % X0 : initial particles 
+ % ness_thr : resampling threshold
+ % 
+ % Xf : filtered states
+ % Xp : predicted states
+ %
+ % Standard particle filter, resampling conditional on ESS
+ %
+ 
+ % recovers the no. of particles (N), the no. of slow oscillators (nosc)
+ [Dx, N] = size(X0);
+ if nargin < 11
+-    save_obs_indices = [];
++    save_step_indices = [];
+ end
+ if nargin < 12
+     snapshot_cfg = struct();
+ end
+-save_obs_indices = unique(save_obs_indices(:))';
++save_step_indices = unique(save_step_indices(:))';
+ 
+ nt=NT/n_obs; % choose NT and obs such that obs| NT
+ % initialisation
+ Xf = zeros([Dx nt+1]);      % filtered estimates, at obs
+ Xp = zeros([Dx NT+1]);      % predicted estimates, at all times  
+ Xf(:,1) = mean(X0,2);
+ Xp(:,1) = mean(X0,2);
+ Xold = X0;                % auxiliary
+ lw = zeros([1 N]);        % log-weights  
+ w = ones([1 N])/N;        % weights  
+ % noise variance
+ s2z = sz^2;
+ % time steps
+ sxsqrth=sx*sqrt(h);
+ 
+-save_snapshot_on_the_fly(snapshot_cfg, save_obs_indices, 0, X0, w);
++save_snapshot_on_the_fly(snapshot_cfg, save_step_indices, 0, X0, w);
+  
+ %
+ % --Time loop
+ %
+ %finer_idx_counter=1;
+ for obs_idx=1:nt
+ 
+    obs_z=z(:,obs_idx); %  i eliminated zeros, z(1) gives observed value at t=h 
+   
+ 
+    %fprintf("observation index  of   %d  at time  , \n ",obs_idx);
+    for inner_idx=1:n_obs
+         
+         Xdrift = l96dxdt(Xold,F,Dx);
+         dWx=sxsqrth*randn(Dx,N);
+        % Xdrift = Xdrift./(1+h*vecnorm(Xdrift)); % example taming function
+         Xnew=  Xold + h*Xdrift+dWx;
+         %finer_idx_counter=finer_idx_counter+1;
+ 
+         % prediction
+         Xold=Xnew;
+         Xp(:,(obs_idx-1)*n_obs+inner_idx+1)=Xnew*w';
++        % --- NEW: Save snapshot at intermediate steps ---
++        current_step = (obs_idx - 1) * n_obs + inner_idx;
++        save_snapshot_on_the_fly(snapshot_cfg, save_step_indices, current_step, Xnew, w);
+        % fprintf("finer_idx  % d, Xp stored at   %d \n", finer_idx_counter,(obs_idx-1)*n_obs+inner_idx+1);
+    end 
+    
+    
+ 
+    % prediction
+      
+        % Available observations
+ 
+        % weights
+        llk = -(1/(2*s2z)) .* sum(( obs_z - H*Xnew ).^2);  % log-likelihood
+        lw = lw + llk - max(lw+llk);
+        wu = exp(lw);
+        w = wu ./ sum(wu);
+        
+        % estimation
+        Xf(:,obs_idx+1) = Xnew*w';  %%% is it the correct place ?  (obs_idx+1)
+-       save_snapshot_on_the_fly(snapshot_cfg, save_obs_indices, obs_idx, Xnew, w);
++       save_snapshot_on_the_fly(snapshot_cfg, save_step_indices, obs_idx * n_obs, Xnew, w);
+        
+        % fprintf("finer_idx  % d, Xp stored at   %d \n", finer_idx_counter,(obs_idx-1)*n_obs+inner_idx+1);     
+        % Resampling
+        NESS = (1/sum(w.^2))/N; 
+        if NESS<ness_thr
+             idx = randsample(1:N, N, true, w);
+             Xnew(:,1:N) = Xnew(:,idx);
+            
+             w = ones([1 N])/N;
+             lw = zeros([1 N]);
+        end %if
+        
+    %fprintf("--------------\n");
+     
+    % ...for the next time step
+    Xold = Xnew;
+     
+ end % time (n)
+diff --git a/sir_barrier.m b/sir_barrier.m
+index 066b871caf2280dcf98b4310cbad2e1283a30eea..fc517e5ccf615c7a44c3296e7caf68b234c4775c 100644
+--- a/sir_barrier.m
++++ b/sir_barrier.m
+@@ -1,84 +1,84 @@
+ 
+ 
+-function [Xf, Xp] = sir_barrier(F,sx,sz,h,NT,n_obs,z,H,X0,ness_thr,barrier_params,save_obs_indices,snapshot_cfg)
++function [Xf, Xp] = sir_barrier(F,sx,sz,h,NT,n_obs,z,H,X0,ness_thr,barrier_params,save_step_indices,snapshot_cfg)
+ 
+ %
+ % F : Lorenz 96 forcing parameter
+ % sx : process noise std
+ % sz : observation noise std
+ % h : Euler integration step
+ % NT : no. of discrete time steps
+ % n_obs : observations are collected every n_obs discrete time units
+ % z : observations
+ % H : observation matrix
+ % X0 : initial particles 
+ % ness_thr : resampling threshold
+ % 
+ % Xf : filtered states
+ % Xp : predicted states
+ %
+ %
+ 
+ % recovers the no. of particles (N), 
+ [Dx, N] = size(X0);
+ if nargin < 12
+-    save_obs_indices = [];
++    save_step_indices = [];
+ end
+ if nargin < 13
+     snapshot_cfg = struct();
+ end
+-save_obs_indices = unique(save_obs_indices(:))';
++save_step_indices = unique(save_step_indices(:))';
+ 
+ nt=NT/n_obs; % choose NT and obs such that obs| NT
+ 
+ % initialisation
+ Xf = zeros([Dx nt+1]);      % filtered estimates, at obs
+ Xp = zeros([Dx NT+1]);      % predicted estimates, at all times  
+ Xf(:,1) = mean(X0,2);
+ Xp(:,1) = mean(X0,2);
+ Xold = X0;                % auxiliary
+ lw = zeros([1 N]);        % log-weights  
+ weight = ones([1 N])/N;        % weights  
+ % noise variance
+ s2z = sz^2;
+ s2x=sx^2;
+ % time steps
+ sxsqrth=sx*sqrt(h);
+ %% Barrier hyperparameters.
+ HT      = H.';                       % transpose once
+ 
+ mu=barrier_params.mu;
+ p=barrier_params.p; % here is r0;
+ k=barrier_params.k;
+ 
+ 
+ 
+ %
+ % --Time loop
+ %
+-save_snapshot_on_the_fly(snapshot_cfg, save_obs_indices, 0, X0, weight);
++save_snapshot_on_the_fly(snapshot_cfg, save_step_indices, 0, X0, weight);
+ % centers are on the obs space
+ prev_center=H*mean(X0,2);  % Initialize center of 1st hypercube in OBS from initial particle positions.
+ 
+ for obs_idx=1:nt
+ 
+    obs_z=z(:,obs_idx); %  i eliminated zeros, z(1) gives observed value at t=h 
+ 
+    C(:,1) = prev_center; %
+    C(:,2) = obs_z;   %as Joaquin suggested;
+    [ci,ti]=get_centers_of_hypertube(h,n_obs,C);
+    
+    
+    for inner_idx=1:n_obs
+         
+         Xdrift = l96dxdt(Xold,F,Dx);
+         % barrier term is implemented 
+         e    = ci(:,inner_idx) - H * Xold;                % d_y × N
+       
+         J = sum(e.^2, 1) ./ (2*s2z);  % 1xN  
+        
+         zeta = 1 ./ (1 + exp(-k * (J - p)));
+          
+         q     = HT * e; 
+         gradL = -(1/s2z) * q .* zeta; 
+         Xdrift=Xdrift-mu*s2x*gradL;
+@@ -90,43 +90,43 @@ for obs_idx=1:nt
+         Xold=Xnew;
+         Xp(:,(obs_idx-1)*n_obs+inner_idx+1)=Xnew*weight';
+        % fprintf("finer_idx  % d, Xp stored at   %d \n", finer_idx_counter,(obs_idx-1)*n_obs+inner_idx+1);
+        
+    end 
+    
+         
+ 
+    % prediction
+          %% CHECK HX IS INSIDE THE HYPERCUBE:
+       
+   
+         
+         
+        % Available observations
+ 
+        % weights
+        
+        llk = -(1/(2*s2z)) .* sum(( obs_z - H*Xnew ).^2);  % log-likelihood
+        lw = lw+ llk - max(lw+llk);
+        
+        wu = exp(lw);
+        weight = wu ./ sum(wu);
+        % estimation
+        Xf(:,obs_idx+1) = Xnew*weight';  %%% is it the correct place ?  (obs_idx+1)
+-       save_snapshot_on_the_fly(snapshot_cfg, save_obs_indices, obs_idx, Xnew, weight);
++       save_snapshot_on_the_fly(snapshot_cfg, save_step_indices, obs_idx * n_obs, Xnew, weight);
+        % fprintf("finer_idx  % d, Xp stored at   %d \n", finer_idx_counter,(obs_idx-1)*n_obs+inner_idx+1);     
+        % Resampling
+        NESS = (1/sum(weight.^2))/N; 
+        if NESS<ness_thr
+             idx = randsample(1:N, N, true, weight);
+             Xnew(:,1:N) = Xnew(:,idx);
+             Xold = Xnew;
+             weight= ones([1 N])/N;
+             lw = zeros([1 N]);
+        end %if
+        
+    %fprintf("--------------\n");
+     
+    
+     prev_center=C(:,2);  % in the next stage, prev_stage should be independent of SDE samples
+     Xold=Xnew;
+ end % time (n)
+diff --git a/sir_guided_NOgirsanov_a0.m b/sir_guided_NOgirsanov_a0.m
+index 1b8295fff7ddae5392d5f96f276edeaa398f52c6..7febf9bc9aae54603940e572198e8b205f7e24f3 100644
+--- a/sir_guided_NOgirsanov_a0.m
++++ b/sir_guided_NOgirsanov_a0.m
+@@ -1,133 +1,136 @@
+-function [Xf, Xp, resampling_counter] = sir_guided_NOgirsanov_a0(F,sx,sz,h,NT,n_obs,z,H,X0,ness_thr,save_obs_indices,snapshot_cfg)
++function [Xf, Xp, resampling_counter] = sir_guided_NOgirsanov_a0(F,sx,sz,h,NT,n_obs,z,H,X0,ness_thr,save_step_indices,snapshot_cfg)
+ 
+ % Guided particle filter with baseline OU auxiliary AND a_n = 0.
+ %
+ % True model (particles):  dX = b(X) dt + sx dW
+ % Auxiliary model (for g): dZ = (-Z) dt + sx dW   (i.e., A=-I, a(t)=0)
+ %
+ % Guidance:
+ %   G(Delta, x) = ∇_x log g(t,x) = phi * H' * R(Delta)^{-1} ( y - H*(phi*x) )
+ % where
+ %   phi = exp(-Delta),
+ %   C(Delta) = (sx^2/2) (1 - exp(-2 Delta)) I,
+ %   R(Delta) = H C H' + sz^2 I = cvar*(H H') + sz^2 I.
+ %
+ % Weights over one window [t_{n-1}, t_n]:
+ %   log w <- log w + log g(Delta0, X_{t_{n-1}}) + ∫ < r(X_t), G(t,X_t) > dt
+ % with
+ %   r(x) = b(x) - (-x) = b(x) + x.
+ 
+ [Dx, N] = size(X0);
+ if nargin < 11
+-    save_obs_indices = [];
++    save_step_indices = [];
+ end
+ if nargin < 12
+     snapshot_cfg = struct();
+ end
+-save_obs_indices = unique(save_obs_indices(:))';
++save_step_indices = unique(save_step_indices(:))';
+ nt = NT / n_obs;  % require n_obs | NT
+ 
+ % Initialisation
+ Xf = zeros(Dx, nt+1);      % filtered mean at obs times
+ Xp = zeros(Dx, NT+1);      % predicted mean at all times
+ Xf(:,1) = mean(X0,2);
+ Xp(:,1) = mean(X0,2);
+ 
+ Xold = X0;
+ lw   = zeros(1, N);        % log weights
+ w    = ones(1, N)/N;       % weights
+ 
+ % Precompute
+ sxsqrth = sx*sqrt(h);
+ s2z=sz^2;
+ 
+ resampling_counter = 0;
+ 
+-save_snapshot_on_the_fly(snapshot_cfg, save_obs_indices, 0, X0, w);
++save_snapshot_on_the_fly(snapshot_cfg, save_step_indices, 0, X0, w);
+ 
+ 
+ % -- Loop over observation windows
+ for obs_idx = 1:nt
+ 
+     obs_z = z(:,obs_idx);
+   
+     % ============================================================
+     % (A) a_n = 0 (fixed)
+     % ============================================================
+     % No need to compute xbar, bbar, etc.
+ 
+     % (B) log g at window start (Delta0 = n_obs*h)
+     Delta0 = n_obs * h;
+     logg0  = log_g_aux_OU_a0(Xold, obs_z, H, sx, sz, Delta0);  % 1 x N
+ 
+     % accumulate integral: sum_k h <r(X_k), G_k>
+     integ = zeros(1, N);
+ 
+     % ============================================================
+     % (C) Inner propagation with guided proposal
+     % ============================================================
+     for inner_idx = 1:n_obs
+ 
+         % remaining time-to-observation
+         Delta = (n_obs - inner_idx + 1) * h;
+ 
+         % True drift b(Xold)
+         Xdrift = l96dxdt(Xold, F, Dx);     % Dx x N (your vectorized function)
+ 
+         % Guidance G(Delta, Xold) = ∇ log g(t, Xold) under a_n = 0 auxiliary
+         G = score_G_aux_OU_a0(Xold, obs_z, H, sx, sz, Delta);  % Dx x N
+ 
+         % Remainder mismatch r(x) = b(x) - (-x) = b(x) + x
+         rX = Xdrift + Xold;
+ 
+         % Accumulate integral term
+         integ = integ + h * sum(rX .* G, 1);
+ 
+         % Guided Euler-Maruyama proposal:
+         dWx  = sxsqrth * randn(Dx, N);
+         
+         Xnew = Xold + h * (Xdrift + (sx^2) * G) + dWx;
+ 
+         % move forward
+         Xold = Xnew;
+ 
+         % predicted mean (store at every step)
+         Xp(:, (obs_idx-1)*n_obs + inner_idx + 1) = Xnew * w.';
++        % --- NEW: Save snapshot at intermediate steps ---
++        current_step = (obs_idx - 1) * n_obs + inner_idx;
++        save_snapshot_on_the_fly(snapshot_cfg, save_step_indices, current_step, Xnew, w);
+     end
+ 
+     % ============================================================
+     % (D) Weight update at observation time (guided)
+     % ============================================================
+     llk = -(1/(2*sz^2)) .* sum(( obs_z - H*Xnew ).^2);  % log-likelihood
+     lw = lw+ llk - max(lw+llk);
+     wu = exp(lw);
+     w  = wu ./ sum(wu);
+ 
+     % filtered estimate at obs time
+     Xf(:, obs_idx+1) = Xnew * w.';
+-    save_snapshot_on_the_fly(snapshot_cfg, save_obs_indices, obs_idx, Xnew, w);
++    save_snapshot_on_the_fly(snapshot_cfg, save_step_indices, obs_idx * n_obs, Xnew, w);
+ 
+     % ============================================================
+     % (E) Resampling conditional on ESS
+     % ============================================================
+     NESS = (1/sum(w.^2))/N;
+     if NESS < ness_thr
+         idx = randsample(1:N, N, true, w);
+         Xnew = Xnew(:, idx);
+         Xold = Xnew;
+ 
+         w  = ones(1, N)/N;
+         lw = zeros(1, N);
+ 
+         resampling_counter = resampling_counter + 1;
+     end
+         
+ 
+ end
+ end
+ 
+ % ======================================================================
+ % log g under OU auxiliary with a_n = 0:
+ % Z_T | Z_t=x ~ N( phi*x, C(Δ) ), C(Δ)=cvar*I
+ % y = H Z_T + noise, noise~N(0, sz^2 I)
+ %
+diff --git a/sir_guided_NOgirsanov_barrier_a0.m b/sir_guided_NOgirsanov_barrier_a0.m
+index 55319afb2810a67b2d9bdccc5a6e44412f8e905c..631919e211b6e6c8aab8d2ee398d419ebac682d5 100644
+--- a/sir_guided_NOgirsanov_barrier_a0.m
++++ b/sir_guided_NOgirsanov_barrier_a0.m
+@@ -1,78 +1,78 @@
+-function [Xf, Xp, resampling_counter] = sir_guided_NOgirsanov_barrier_a0(F,sx,sz,h,NT,n_obs,z,H,X0,ness_thr,barrier_params,save_obs_indices,snapshot_cfg)
++function [Xf, Xp, resampling_counter] = sir_guided_NOgirsanov_barrier_a0(F,sx,sz,h,NT,n_obs,z,H,X0,ness_thr,barrier_params,save_step_indices,snapshot_cfg)
+ 
+ % Guided particle filter with baseline OU auxiliary AND a_n = 0.
+ %
+ % True model (particles):  dX = b(X) dt + sx dW
+ % Auxiliary model (for g): dZ = (-Z) dt + sx dW   (i.e., A=-I, a(t)=0)
+ %
+ % Guidance:
+ %   G(Delta, x) = ∇_x log g(t,x) = phi * H' * R(Delta)^{-1} ( y - H*(phi*x) )
+ % where
+ %   phi = exp(-Delta),
+ %   C(Delta) = (sx^2/2) (1 - exp(-2 Delta)) I,
+ %   R(Delta) = H C H' + sz^2 I = cvar*(H H') + sz^2 I.
+ %
+ % Weights over one window [t_{n-1}, t_n]:
+ %   log w <- log w + log g(Delta0, X_{t_{n-1}}) + ∫ < r(X_t), G(t,X_t) > dt
+ % with
+ %   r(x) = b(x) - (-x) = b(x) + x.
+ 
+ [Dx, N] = size(X0);
+ if nargin < 12
+-    save_obs_indices = [];
++    save_step_indices = [];
+ end
+ if nargin < 13
+     snapshot_cfg = struct();
+ end
+-save_obs_indices = unique(save_obs_indices(:))';
++save_step_indices = unique(save_step_indices(:))';
+ nt = NT / n_obs;  % require n_obs | NT
+ 
+ % Initialisation
+ Xf = zeros(Dx, nt+1);      % filtered mean at obs times
+ Xp = zeros(Dx, NT+1);      % predicted mean at all times
+ Xf(:,1) = mean(X0,2);
+ Xp(:,1) = mean(X0,2);
+ 
+ Xold = X0;
+ lw   = zeros(1, N);        % log weights
+ w    = ones(1, N)/N;       % weights
+ 
+ % Precompute
+ sxsqrth = sx*sqrt(h);
+ s2z=sz^2;
+ 
+ resampling_counter = 0;
+ 
+ HT      = H.';                       % transpose once
+ 
+ mu=barrier_params.mu;
+ p=barrier_params.p; % here is r0;
+ k=barrier_params.k;
+ 
+ prev_center=H*mean(X0,2);  % Initialize center of 1st hypercube in OBS from initial particle positions.
+-save_snapshot_on_the_fly(snapshot_cfg, save_obs_indices, 0, X0, w);
++save_snapshot_on_the_fly(snapshot_cfg, save_step_indices, 0, X0, w);
+ 
+ % -- Loop over observation windows
+ for obs_idx = 1:nt
+ 
+     obs_z = z(:,obs_idx);
+     C(:,1) = prev_center; %
+     C(:,2) = obs_z;   %as Joaquin suggested;
+     [ci,~]=get_centers_of_hypertube(h,n_obs,C);
+ 
+     % ============================================================
+     % (A) a_n = 0 (fixed)
+     % ============================================================
+     % No need to compute xbar, bbar, etc.
+ 
+     % (B) log g at window start (Delta0 = n_obs*h)
+     Delta0 = n_obs * h;
+     logg0  = log_g_aux_OU_a0(Xold, obs_z, H, sx, sz, Delta0);  % 1 x N
+ 
+     % accumulate integral: sum_k h <r(X_k), G_k>
+     integ = zeros(1, N);
+ 
+     % ============================================================
+     % (C) Inner propagation with guided proposal
+     % ============================================================
+     for inner_idx = 1:n_obs
+@@ -95,63 +95,66 @@ for obs_idx = 1:nt
+         q     = HT * e; 
+         gradL = -(1/s2z) * q .* zeta; 
+ 
+         % Guidance G(Delta, Xold) = ∇ log g(t, Xold) under a_n = 0 auxiliary
+         G = score_G_aux_OU_a0(Xold, obs_z, H, sx, sz, Delta);  % Dx x N
+ 
+         % Remainder mismatch r(x) = b(x) - (-x) = b(x) + x
+         rX = Xdrift + Xold;
+ 
+         % Accumulate integral term
+         integ = integ + h * sum(rX .* G, 1);
+ 
+         % Guided Euler-Maruyama proposal:
+         dWx  = sxsqrth * randn(Dx, N);
+ 
+         Xdrift=Xdrift-mu*(sx^2)*gradL;% if you include barrier term to the weight computation
+                                   % do this earlier
+         
+         Xnew = Xold + h * (Xdrift + (sx^2) * G) + dWx;
+ 
+         % move forward
+         Xold = Xnew;
+ 
+         % predicted mean (store at every step)
+         Xp(:, (obs_idx-1)*n_obs + inner_idx + 1) = Xnew * w.';
++        % --- NEW: Save snapshot at intermediate steps ---
++        current_step = (obs_idx - 1) * n_obs + inner_idx;
++        save_snapshot_on_the_fly(snapshot_cfg, save_step_indices, current_step, Xnew, w);
+     end
+ 
+     % ============================================================
+     % (D) Weight update at observation time (guided)
+     % ============================================================
+    llk = -(1/(2*s2z)) .* sum(( obs_z - H*Xnew ).^2);  % log-likelihood
+    lw = lw+ llk - max(lw+llk);
+     wu = exp(lw);
+     w  = wu ./ sum(wu);
+ 
+     % filtered estimate at obs time
+     Xf(:, obs_idx+1) = Xnew * w.';
+-    save_snapshot_on_the_fly(snapshot_cfg, save_obs_indices, obs_idx, Xnew, w);
++    save_snapshot_on_the_fly(snapshot_cfg, save_step_indices, obs_idx * n_obs, Xnew, w);
+ 
+     % ============================================================
+     % (E) Resampling conditional on ESS
+     % ============================================================
+     NESS = (1/sum(w.^2))/N;
+     if NESS < ness_thr
+         idx = randsample(1:N, N, true, w);
+         Xnew = Xnew(:, idx);
+         Xold = Xnew;
+ 
+         w  = ones(1, N)/N;
+         lw = zeros(1, N);
+ 
+         resampling_counter = resampling_counter + 1;
+     end
+         prev_center=C(:,2);
+ 
+ end
+ end
+ 
+ % ======================================================================
+ % log g under OU auxiliary with a_n = 0:
+ % Z_T | Z_t=x ~ N( phi*x, C(Δ) ), C(Δ)=cvar*I
+ % y = H Z_T + noise, noise~N(0, sz^2 I)
+ %
+diff --git a/sir_guided_girsanov_a0.m b/sir_guided_girsanov_a0.m
+index b9942400cc57b99d75d6428b820501d4cab44950..5e659581ee26b839db3fa3ea7a4bd9de73d25bd6 100644
+--- a/sir_guided_girsanov_a0.m
++++ b/sir_guided_girsanov_a0.m
+@@ -1,130 +1,133 @@
+-   function [Xf, Xp, resampling_counter] = sir_guided_girsanov_a0(F,sx,sz,h,NT,n_obs,z,H,X0,ness_thr,save_obs_indices,snapshot_cfg)
++   function [Xf, Xp, resampling_counter] = sir_guided_girsanov_a0(F,sx,sz,h,NT,n_obs,z,H,X0,ness_thr,save_step_indices,snapshot_cfg)
+ % Guided particle filter with baseline OU auxiliary AND a_n = 0.
+ %
+ % True model (particles):  dX = b(X) dt + sx dW
+ % Auxiliary model (for g): dZ = (-Z) dt + sx dW   (i.e., A=-I, a(t)=0)
+ %
+ % Guidance:
+ %   G(Delta, x) = ∇_x log g(t,x) = phi * H' * R(Delta)^{-1} ( y - H*(phi*x) )
+ % where
+ %   phi = exp(-Delta),
+ %   C(Delta) = (sx^2/2) (1 - exp(-2 Delta)) I,
+ %   R(Delta) = H C H' + sz^2 I = cvar*(H H') + sz^2 I.
+ %
+ % Weights over one window [t_{n-1}, t_n]:
+ %   log w <- log w + log g(Delta0, X_{t_{n-1}}) + ∫ < r(X_t), G(t,X_t) > dt
+ % with
+ %   r(x) = b(x) - (-x) = b(x) + x.
+ 
+ [Dx, N] = size(X0);
+ if nargin < 11
+-    save_obs_indices = [];
++    save_step_indices = [];
+ end
+ if nargin < 12
+     snapshot_cfg = struct();
+ end
+-save_obs_indices = unique(save_obs_indices(:))';
++save_step_indices = unique(save_step_indices(:))';
+ nt = NT / n_obs;  % require n_obs | NT
+ 
+ % Initialisation
+ Xf = zeros(Dx, nt+1);      % filtered mean at obs times
+ Xp = zeros(Dx, NT+1);      % predicted mean at all times
+ Xf(:,1) = mean(X0,2);
+ Xp(:,1) = mean(X0,2);
+ 
+ Xold = X0;
+ lw   = zeros(1, N);        % log weights
+ w    = ones(1, N)/N;       % weights
+ 
+ % Precompute
+ sxsqrth = sx*sqrt(h);
+ 
+ resampling_counter = 0;
+-save_snapshot_on_the_fly(snapshot_cfg, save_obs_indices, 0, X0, w);
++save_snapshot_on_the_fly(snapshot_cfg, save_step_indices, 0, X0, w);
+ 
+ % -- Loop over observation windows
+ for obs_idx = 1:nt
+ 
+     obs_z = z(:,obs_idx);
+ 
+     % ============================================================
+     % (A) a_n = 0 (fixed)
+     % ============================================================
+     % No need to compute xbar, bbar, etc.
+ 
+     % (B) log g at window start (Delta0 = n_obs*h)
+     Delta0 = n_obs * h;
+     logg0  = log_g_aux_OU_a0(Xold, obs_z, H, sx, sz, Delta0);  % 1 x N
+ 
+     % accumulate integral: sum_k h <r(X_k), G_k>
+     integ = zeros(1, N);
+ 
+     % ============================================================
+     % (C) Inner propagation with guided proposal
+     % ============================================================
+     for inner_idx = 1:n_obs
+ 
+         % remaining time-to-observation
+         Delta = (n_obs - inner_idx + 1) * h;
+ 
+         % True drift b(Xold)
+         Xdrift = l96dxdt(Xold, F, Dx);     % Dx x N (your vectorized function)
+ 
+         % Guidance G(Delta, Xold) = ∇ log g(t, Xold) under a_n = 0 auxiliary
+         G = score_G_aux_OU_a0(Xold, obs_z, H, sx, sz, Delta);  % Dx x N
+ 
+         % Remainder mismatch r(x) = b(x) - (-x) = b(x) + x
+         rX = Xdrift + Xold;
+ 
+         % Accumulate integral term
+         integ = integ + h * sum(rX .* G, 1);
+ 
+         % Guided Euler-Maruyama proposal:
+         dWx  = sxsqrth * randn(Dx, N);
+         Xnew = Xold + h * (Xdrift + (sx^2) * G) + dWx;
+ 
+         % move forward
+         Xold = Xnew;
+ 
+         % predicted mean (store at every step)
+         Xp(:, (obs_idx-1)*n_obs + inner_idx + 1) = Xnew * w.';
++        % --- NEW: Save snapshot at intermediate steps ---
++        current_step = (obs_idx - 1) * n_obs + inner_idx;
++        save_snapshot_on_the_fly(snapshot_cfg, save_step_indices, current_step, Xnew, w);
+     end
+ 
+     % ============================================================
+     % (D) Weight update at observation time (guided)
+     % ============================================================
+     lw = lw + logg0 + integ;
+ 
+     % normalize weights stably
+     lw = lw - max(lw);
+     wu = exp(lw);
+     w  = wu ./ sum(wu);
+ 
+     % filtered estimate at obs time
+     Xf(:, obs_idx+1) = Xnew * w.';
+-    save_snapshot_on_the_fly(snapshot_cfg, save_obs_indices, obs_idx, Xnew, w);
++    save_snapshot_on_the_fly(snapshot_cfg, save_step_indices, obs_idx * n_obs, Xnew, w);
+ 
+     % ============================================================
+     % (E) Resampling conditional on ESS
+     % ============================================================
+     NESS = (1/sum(w.^2))/N;
+     if NESS < ness_thr
+         idx = randsample(1:N, N, true, w);
+         Xnew = Xnew(:, idx);
+         Xold = Xnew;
+ 
+         w  = ones(1, N)/N;
+         lw = zeros(1, N);
+ 
+         resampling_counter = resampling_counter + 1;
+     end
+ 
+ end
+ end
+ 
+ % ======================================================================
+ % log g under OU auxiliary with a_n = 0:
+ % Z_T | Z_t=x ~ N( phi*x, C(Δ) ), C(Δ)=cvar*I
+ % y = H Z_T + noise, noise~N(0, sz^2 I)
+ %
+ % log g = -0.5 * (y - H*(phi*x))^T R^{-1} (y - H*(phi*x)) + const
+diff --git a/sir_guided_girsanov_barrier_a0.m b/sir_guided_girsanov_barrier_a0.m
+index 6d32534d3194e886545a641f00ea433b9fa13ed3..1129f41d5b7fc07b9e798a290efc9ef415fb6aed 100644
+--- a/sir_guided_girsanov_barrier_a0.m
++++ b/sir_guided_girsanov_barrier_a0.m
+@@ -1,77 +1,77 @@
+-function [Xf, Xp, resampling_counter] = sir_guided_girsanov_barrier_a0(F,sx,sz,h,NT,n_obs,z,H,X0,ness_thr,barrier_params,save_obs_indices,snapshot_cfg)
++function [Xf, Xp, resampling_counter] = sir_guided_girsanov_barrier_a0(F,sx,sz,h,NT,n_obs,z,H,X0,ness_thr,barrier_params,save_step_indices,snapshot_cfg)
+ 
+ % Guided particle filter with baseline OU auxiliary AND a_n = 0.
+ %
+ % True model (particles):  dX = b(X) dt + sx dW
+ % Auxiliary model (for g): dZ = (-Z) dt + sx dW   (i.e., A=-I, a(t)=0)
+ %
+ % Guidance:
+ %   G(Delta, x) = ∇_x log g(t,x) = phi * H' * R(Delta)^{-1} ( y - H*(phi*x) )
+ % where
+ %   phi = exp(-Delta),
+ %   C(Delta) = (sx^2/2) (1 - exp(-2 Delta)) I,
+ %   R(Delta) = H C H' + sz^2 I = cvar*(H H') + sz^2 I.
+ %
+ % Weights over one window [t_{n-1}, t_n]:
+ %   log w <- log w + log g(Delta0, X_{t_{n-1}}) + ∫ < r(X_t), G(t,X_t) > dt
+ % with
+ %   r(x) = b(x) - (-x) = b(x) + x.
+ 
+ [Dx, N] = size(X0);
+ if nargin < 12
+-    save_obs_indices = [];
++    save_step_indices = [];
+ end
+ if nargin < 13
+     snapshot_cfg = struct();
+ end
+-save_obs_indices = unique(save_obs_indices(:))';
++save_step_indices = unique(save_step_indices(:))';
+ nt = NT / n_obs;  % require n_obs | NT
+ 
+ % Initialisation
+ Xf = zeros(Dx, nt+1);      % filtered mean at obs times
+ Xp = zeros(Dx, NT+1);      % predicted mean at all times
+ Xf(:,1) = mean(X0,2);
+ Xp(:,1) = mean(X0,2);
+ 
+ Xold = X0;
+ lw   = zeros(1, N);        % log weights
+ w    = ones(1, N)/N;       % weights
+ 
+ % Precompute
+ sxsqrth = sx*sqrt(h);
+ s2z=sz^2;
+ resampling_counter = 0;
+ 
+ HT      = H.';                       % transpose once
+ 
+ mu=barrier_params.mu;
+ p=barrier_params.p; % here is r0;
+ k=barrier_params.k;
+ 
+ prev_center=H*mean(X0,2);  % Initialize center of 1st hypercube in OBS from initial particle positions.
+-save_snapshot_on_the_fly(snapshot_cfg, save_obs_indices, 0, X0, w);
++save_snapshot_on_the_fly(snapshot_cfg, save_step_indices, 0, X0, w);
+ 
+ % -- Loop over observation windows
+ for obs_idx = 1:nt
+ 
+     obs_z = z(:,obs_idx);
+     C(:,1) = prev_center; %
+     C(:,2) = obs_z;   %as Joaquin suggested;
+     [ci,~]=get_centers_of_hypertube(h,n_obs,C);
+ 
+     % ============================================================
+     % (A) a_n = 0 (fixed)
+     % ============================================================
+     % No need to compute xbar, bbar, etc.
+ 
+     % (B) log g at window start (Delta0 = n_obs*h)
+     Delta0 = n_obs * h;
+     logg0  = log_g_aux_OU_a0(Xold, obs_z, H, sx, sz, Delta0);  % 1 x N
+ 
+     % accumulate integral: sum_k h <r(X_k), G_k>
+     integ = zeros(1, N);
+ 
+     % ============================================================
+     % (C) Inner propagation with guided proposal
+     % ============================================================
+     for inner_idx = 1:n_obs
+@@ -94,65 +94,68 @@ for obs_idx = 1:nt
+         q     = HT * e; 
+         gradL = -(1/s2z) * q .* zeta; 
+ 
+         % Guidance G(Delta, Xold) = ∇ log g(t, Xold) under a_n = 0 auxiliary
+         G = score_G_aux_OU_a0(Xold, obs_z, H, sx, sz, Delta);  % Dx x N
+ 
+         % Remainder mismatch r(x) = b(x) - (-x) = b(x) + x
+         rX = Xdrift + Xold;
+ 
+         % Accumulate integral term
+         integ = integ + h * sum(rX .* G, 1);
+ 
+         % Guided Euler-Maruyama proposal:
+         dWx  = sxsqrth * randn(Dx, N);
+ 
+         Xdrift=Xdrift-mu*(sx^2)*gradL;% if you include barrier term to the weight computation
+                                   % do this earlier
+         
+         Xnew = Xold + h * (Xdrift + (sx^2) * G) + dWx;
+ 
+         % move forward
+         Xold = Xnew;
+ 
+         % predicted mean (store at every step)
+         Xp(:, (obs_idx-1)*n_obs + inner_idx + 1) = Xnew * w.';
++        % --- NEW: Save snapshot at intermediate steps ---
++        current_step = (obs_idx - 1) * n_obs + inner_idx;
++        save_snapshot_on_the_fly(snapshot_cfg, save_step_indices, current_step, Xnew, w);
+     end
+ 
+     % ============================================================
+     % (D) Weight update at observation time (guided)
+     % ============================================================
+     lw = lw + logg0 + integ;
+ 
+     % normalize weights stably
+     lw = lw - max(lw);
+     wu = exp(lw);
+     w  = wu ./ sum(wu);
+ 
+     % filtered estimate at obs time
+     Xf(:, obs_idx+1) = Xnew * w.';
+-    save_snapshot_on_the_fly(snapshot_cfg, save_obs_indices, obs_idx, Xnew, w);
++    save_snapshot_on_the_fly(snapshot_cfg, save_step_indices, obs_idx * n_obs, Xnew, w);
+ 
+     % ============================================================
+     % (E) Resampling conditional on ESS
+     % ============================================================
+     NESS = (1/sum(w.^2))/N;
+     if NESS < ness_thr
+         idx = randsample(1:N, N, true, w);
+         Xnew = Xnew(:, idx);
+         Xold = Xnew;
+ 
+         w  = ones(1, N)/N;
+         lw = zeros(1, N);
+ 
+         resampling_counter = resampling_counter + 1;
+     end
+         prev_center=C(:,2);
+ 
+ end
+ end
+ 
+ % ======================================================================
+ % log g under OU auxiliary with a_n = 0:
+ % Z_T | Z_t=x ~ N( phi*x, C(Δ) ), C(Δ)=cvar*I
+ % y = H Z_T + noise, noise~N(0, sz^2 I)
+ %

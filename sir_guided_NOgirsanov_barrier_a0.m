@@ -1,4 +1,4 @@
-function [Xf, Xp, resampling_counter] = sir_guided_NOgirsanov_barrier_a0(F,sx,sz,h,NT,n_obs,z,H,X0,ness_thr,barrier_params)
+function [Xf, Xp, resampling_counter] = sir_guided_NOgirsanov_barrier_a0(F,sx,sz,h,NT,n_obs,z,H,X0,ness_thr,barrier_params,save_obs_indices,snapshot_cfg)
 
 % Guided particle filter with baseline OU auxiliary AND a_n = 0.
 %
@@ -18,6 +18,13 @@ function [Xf, Xp, resampling_counter] = sir_guided_NOgirsanov_barrier_a0(F,sx,sz
 %   r(x) = b(x) - (-x) = b(x) + x.
 
 [Dx, N] = size(X0);
+if nargin < 12
+    save_obs_indices = [];
+end
+if nargin < 13
+    snapshot_cfg = struct();
+end
+save_obs_indices = unique(save_obs_indices(:))';
 nt = NT / n_obs;  % require n_obs | NT
 
 % Initialisation
@@ -43,6 +50,7 @@ p=barrier_params.p; % here is r0;
 k=barrier_params.k;
 
 prev_center=H*mean(X0,2);  % Initialize center of 1st hypercube in OBS from initial particle positions.
+save_snapshot_on_the_fly(snapshot_cfg, save_obs_indices, 0, X0, w);
 
 % -- Loop over observation windows
 for obs_idx = 1:nt
@@ -121,6 +129,7 @@ for obs_idx = 1:nt
 
     % filtered estimate at obs time
     Xf(:, obs_idx+1) = Xnew * w.';
+    save_snapshot_on_the_fly(snapshot_cfg, save_obs_indices, obs_idx, Xnew, w);
 
     % ============================================================
     % (E) Resampling conditional on ESS
