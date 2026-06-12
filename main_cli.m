@@ -45,13 +45,13 @@ function main_cli(sx, sz, is_N_fixed, fig_dir)
     %% barrier parameters
    
     
-      DxArray =  [10,50,100];
+      DxArray =  [50,100];
 
 
 
     dummy_params = struct();
 
-      save_step_indices = [10000];
+      save_step_indices = [100:100:10000];
     snapshot_root_dir = fullfile(fig_dir, 'snapshots');
     if ~exist(snapshot_root_dir, 'dir')
         mkdir(snapshot_root_dir);
@@ -60,9 +60,11 @@ function main_cli(sx, sz, is_N_fixed, fig_dir)
 
     filters = {
         SIRFilter(dummy_params,     DxArray), ...
-        ENKFFilter(dummy_params,    DxArray), ...
-        ENKF_Barrier_Filter(dummy_params, DxArray),	...
-        BarrierFilter(dummy_params, DxArray)
+        BarrierFilter(dummy_params, DxArray),...
+        SIR_Tamed_Filter(dummy_params, DxArray),...
+        Barrier_Tamed_Filter(dummy_params, DxArray),....
+         SIR_ExpTamed_Filter(dummy_params, DxArray),...
+        Barrier_ExpTamed_Filter(dummy_params, DxArray),....
     };
 
     % NArray: fixed or equal to DxArray, depending on input flag
